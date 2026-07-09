@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Quantum AI Trading Platform</title>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Chart.js for trading charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Background Effect -->
+    <div id="particles-js"></div>
+    
+    <div class="app-container">
+        <!-- ===== HEADER ===== -->
+        <header class="header">
+            <div class="logo-area">
+                <div class="logo-icon">⚛️</div>
+                <div class="brand-text">
+                    <h1>Quantum AI</h1>
+                    <p>TRADING PLATFORM</p>
+                </div>
+            </div>
+            <div class="quantum-badge" id="quantumBadge">
+                <i class="fas fa-shield-alt"></i>
+                <span>CHSH S=2.76 · 98.4% · SA 2026/05142</span>
+            </div>
+            <div class="header-actions">
+                <button class="header-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+                <button class="header-btn" onclick="switchTab('trades')">Trades</button>
+                <button class="header-btn" onclick="switchTab('settings')">Settings</button>
+            </div>
+        </header>
+
+        <!-- ===== LASER LINE HERO ===== -->
+        <section class="hero">
+            <div class="hero-content">
+                <h2>QUANTUM TRADING</h2>
+                <p>IBM-verified · 38% above classical · Patent Pending</p>
+                <div class="laser-container">
+                    <div class="laser-line"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== STATS ROW ===== -->
+        <div class="stats-row">
+            <div class="stat-card glass">
+                <div class="stat-value" id="signalDisplay">—</div>
+                <div class="stat-label">CURRENT SIGNAL</div>
+                <div class="stat-confidence" id="confidenceDisplay">Confidence: —</div>
+            </div>
+            <div class="stat-card glass">
+                <div class="stat-value" id="quantumStatus">⚛️</div>
+                <div class="stat-label">QUANTUM STATUS</div>
+                <div class="stat-sub" id="quantumDetail">CHSH S=2.76</div>
+            </div>
+            <div class="stat-card glass">
+                <div class="stat-value" id="tradeCount">0</div>
+                <div class="stat-label">TRADES TODAY</div>
+                <div class="stat-sub" id="winRate">Win Rate: —</div>
+            </div>
+            <div class="stat-card glass">
+                <div class="stat-value" id="pnlDisplay">+0.00%</div>
+                <div class="stat-label">P&L TODAY</div>
+                <div class="stat-sub" id="pnlSub">—</div>
+            </div>
+        </div>
+
+        <!-- ===== DASHBOARD TABS ===== -->
+        <div class="tab-content">
+            <!-- DASHBOARD TAB -->
+            <div id="tab-dashboard" class="tab-pane active">
+                <div class="dashboard-grid">
+                    <!-- Chart Card -->
+                    <div class="card glass chart-card">
+                        <div class="card-header">
+                            <span><i class="fas fa-chart-line"></i> USDCAD · M15</span>
+                            <span class="signal-indicator" id="liveSignal">WAITING</span>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="tradingChart"></canvas>
+                        </div>
+                        <div class="chart-controls">
+                            <button class="btn-sm active" onclick="setTimeframe('M15')">M15</button>
+                            <button class="btn-sm" onclick="setTimeframe('H1')">H1</button>
+                            <button class="btn-sm" onclick="setTimeframe('H4')">H4</button>
+                            <button class="btn-sm" onclick="setTimeframe('D1')">D1</button>
+                        </div>
+                    </div>
+
+                    <!-- Strategy Info Card -->
+                    <div class="card glass strategy-card">
+                        <div class="card-header">
+                            <span><i class="fas fa-brain"></i> STRATEGY</span>
+                            <span class="badge active">ACTIVE</span>
+                        </div>
+                        <div class="strategy-details">
+                            <div class="strategy-item">
+                                <span>Yellow Line (Fast)</span>
+                                <span class="color-dot yellow"></span>
+                            </div>
+                            <div class="strategy-item">
+                                <span>Red Line (Slow)</span>
+                                <span class="color-dot red"></span>
+                            </div>
+                            <div class="strategy-item">
+                                <span>10-Day Trend</span>
+                                <span class="color-dot blue"></span>
+                            </div>
+                            <div class="strategy-item highlight">
+                                <span>📊 Lines Apart = Signal</span>
+                                <span class="badge">TOP 5%</span>
+                            </div>
+                        </div>
+                        <div class="strategy-description">
+                            <p>Yellow/red separation + 10-day trend confirmation.<br>
+                            <span class="quantum-text">⚛️ Quantum-verified confidence scoring.</span></p>
+                        </div>
+                    </div>
+
+                    <!-- Recent Trades Card -->
+                    <div class="card glass trades-card">
+                        <div class="card-header">
+                            <span><i class="fas fa-exchange-alt"></i> RECENT TRADES</span>
+                            <span class="badge">LIVE</span>
+                        </div>
+                        <div id="recentTradesList">
+                            <div class="trade-item pending">Loading trades...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TRADES TAB -->
+            <div id="tab-trades" class="tab-pane">
+                <div class="card glass">
+                    <div class="card-header">
+                        <span><i class="fas fa-list"></i> TRADE HISTORY</span>
+                        <button class="btn-export" onclick="exportTrades()"><i class="fas fa-download"></i> Export</button>
+                    </div>
+                    <div class="table-container">
+                        <table id="tradesTable">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Pair</th>
+                                    <th>Type</th>
+                                    <th>Entry</th>
+                                    <th>Exit</th>
+                                    <th>P&L</th>
+                                    <th>Confidence</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tradesTableBody">
+                                <tr><td colspan="7" style="text-align:center; color: var(--muted);">No trades yet</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SETTINGS TAB -->
+            <div id="tab-settings" class="tab-pane">
+                <div class="card glass">
+                    <div class="card-header">
+                        <span><i class="fas fa-cog"></i> CONNECTION SETTINGS</span>
+                    </div>
+                    <div class="settings-grid">
+                        <div class="form-group">
+                            <label>Backend URL</label>
+                            <input type="text" id="backendUrl" value="https://quantum-ai-backend.onrender.com">
+                        </div>
+                        <div class="form-group">
+                            <label>MT4/MT5 Account ID</label>
+                            <input type="text" id="mt5Account" placeholder="Enter account ID">
+                        </div>
+                        <div class="form-group">
+                            <label>API Key</label>
+                            <input type="password" id="apiKey" placeholder="Enter API key">
+                        </div>
+                        <div class="form-group">
+                            <label>Signal Threshold</label>
+                            <input type="range" id="thresholdSlider" min="0" max="100" value="70">
+                            <span id="thresholdValue">70%</span>
+                        </div>
+                    </div>
+                    <button class="btn-save" onclick="saveSettings()"><i class="fas fa-save"></i> Save Settings</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <footer class="footer">
+            <div class="footer-logos">
+                <span>⚛️ Quantum AI · MindTech Industries</span>
+                <span>|</span>
+                <span>SA Patent 2026/05142</span>
+                <span>|</span>
+                <span>IBM Job: d8uhvl4bp3hs738628cg</span>
+            </div>
+            <p>© 2026 · Quantum AI Trading Platform · Powered by IBM-verified quantum entanglement</p>
+        </footer>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/quantum.js"></script>
+</body>
+</html>
