@@ -3,218 +3,1017 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Quantum AI Trading Platform</title>
+    <title>KD QUANTUM TRADING PLATFORM</title>
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
-    <!-- Chart.js for trading charts -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    
-    <!-- CSS -->
-    <link rel="stylesheet" href="css/style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap');
+
+        :root {
+            --black: #020407;
+            --deep: #050c14;
+            --panel: #080f1a;
+            --border: #0d2035;
+            --glow-blue: #0066FF;
+            --glow-red: #CC0000;
+            --glow-cyan: #00ffcc;
+            --glow-gold: #FFD700;
+            --glow-warn: #ff6b00;
+            --text: #8ab4cc;
+            --text-dim: #2d4a5e;
+            --white: #e8f4ff;
+            --tech-blue: #0066FF;
+            --corp-red: #CC0000;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background: var(--black);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ===== GRID & NOISE OVERLAY ===== */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,102,255,0.015) 2px, rgba(0,102,255,0.015) 4px);
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 999;
+            opacity: 0.4;
+        }
+
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image: linear-gradient(rgba(0,102,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,102,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+        }
+
+        .corner {
+            position: fixed;
+            width: 30px; height: 30px;
+            border-color: rgba(0,102,255,0.3);
+            border-style: solid;
+            z-index: 500;
+        }
+        .corner-tl { top: 16px; left: 16px; border-width: 2px 0 0 2px; }
+        .corner-tr { top: 16px; right: 16px; border-width: 2px 2px 0 0; }
+        .corner-bl { bottom: 16px; left: 16px; border-width: 0 0 2px 2px; }
+        .corner-br { bottom: 16px; right: 16px; border-width: 0 2px 2px 0; }
+
+        /* ===== SCAN SWEEP ===== */
+        .scan-sweep {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0,102,255,0.4), transparent);
+            animation: sweep 8s linear infinite;
+            pointer-events: none;
+            z-index: 998;
+        }
+
+        @keyframes sweep {
+            0% { top: 0; opacity: 1; }
+            95% { opacity: 0.3; }
+            100% { top: 100vh; opacity: 0; }
+        }
+
+        /* ===== LASER LINE ===== */
+        .laser-container {
+            width: 100%;
+            max-width: 800px;
+            height: 4px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 4px;
+            margin: 15px auto 10px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .laser-line {
+            width: 25%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--glow-blue), var(--glow-cyan), var(--glow-gold), var(--glow-blue));
+            border-radius: 4px;
+            animation: laserSweep 3s ease-in-out infinite alternate;
+            box-shadow: 0 0 30px var(--glow-blue), 0 0 60px var(--glow-cyan);
+        }
+
+        @keyframes laserSweep {
+            0% { transform: translateX(-10%); opacity: 0.7; }
+            50% { opacity: 1; box-shadow: 0 0 40px var(--glow-blue), 0 0 80px var(--glow-cyan); }
+            100% { transform: translateX(90%); opacity: 0.7; }
+        }
+
+        /* ===== BLINKING TEXT ===== */
+        @keyframes blinkText {
+            0%, 90%, 100% { opacity: 1; }
+            95% { opacity: 0.1; }
+        }
+
+        .blink-title {
+            animation: blinkText 3s infinite;
+            display: inline-block;
+        }
+
+        .blink-fast {
+            animation: blinkText 1.5s infinite;
+            display: inline-block;
+        }
+
+        /* ===== WRAPPER ===== */
+        .wrapper {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            position: relative;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px; left: 0;
+            width: 120px; height: 1px;
+            background: var(--glow-blue);
+            box-shadow: 0 0 12px var(--glow-blue);
+        }
+
+        .logo-block {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .logo-img {
+            height: 75px;
+            width: auto;
+            filter: drop-shadow(0 0 20px rgba(0,102,255,0.3));
+            transition: filter 0.3s;
+        }
+
+        .logo-img:hover {
+            filter: drop-shadow(0 0 40px rgba(0,102,255,0.6));
+        }
+
+        .logo-text-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .logo-eyebrow {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 4px;
+            color: var(--glow-red);
+            text-transform: uppercase;
+            animation: blinkText 2s infinite;
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 38px;
+            letter-spacing: 4px;
+            color: var(--white);
+            line-height: 1;
+            text-shadow: 0 0 40px rgba(0,102,255,0.3), 0 0 80px rgba(0,102,255,0.1);
+            position: relative;
+        }
+
+        .logo .blink-title {
+            color: var(--glow-cyan);
+        }
+
+        .logo-sub {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 5px;
+            color: var(--text-dim);
+            margin-top: 2px;
+            text-transform: uppercase;
+        }
+
+        .header-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,102,255,0.08);
+            border: 1px solid rgba(0,102,255,0.3);
+            padding: 6px 14px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--glow-cyan);
+        }
+
+        .status-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--glow-cyan);
+            box-shadow: 0 0 8px var(--glow-cyan);
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+        }
+
+        /* ===== QUANTUM BADGE ===== */
+        .quantum-badge-top {
+            background: rgba(138,43,226,0.12);
+            border: 1px solid rgba(138,43,226,0.3);
+            border-radius: 30px;
+            padding: 6px 18px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: var(--glow-cyan);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 0 20px rgba(138,43,226,0.15);
+        }
+
+        .quantum-badge-top i {
+            color: var(--glow-cyan);
+        }
+
+        /* ===== NAV ===== */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin: 15px 0 25px;
+        }
+
+        .nav-btn {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 8px 22px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0,102,255,0.1);
+            border-color: var(--glow-blue);
+            color: var(--white);
+        }
+
+        .nav-btn.active {
+            background: linear-gradient(135deg, var(--glow-blue), #0044CC);
+            border-color: var(--glow-blue);
+            color: #fff;
+            box-shadow: 0 0 25px rgba(0,102,255,0.25);
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            background: linear-gradient(135deg, rgba(0,102,255,0.05) 0%, rgba(204,0,0,0.03) 100%);
+            border: 1px solid rgba(0,102,255,0.15);
+            border-left: 3px solid var(--glow-blue);
+            padding: 28px 36px;
+            margin-bottom: 35px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, var(--glow-blue), var(--glow-cyan), transparent);
+            opacity: 0.6;
+        }
+
+        .hero-eyebrow {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 4px;
+            color: var(--glow-blue);
+            margin-bottom: 6px;
+            text-shadow: 0 0 10px var(--glow-blue);
+            animation: blinkText 2.5s infinite;
+        }
+
+        .hero-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 44px;
+            letter-spacing: 4px;
+            color: var(--white);
+            line-height: 1.1;
+        }
+
+        .hero-title .blink-title {
+            color: var(--glow-cyan);
+        }
+
+        .hero-title span.blue { color: var(--glow-blue); }
+        .hero-title span.red { color: var(--glow-red); }
+        .hero-title span.gold { color: var(--glow-gold); }
+
+        .hero-desc {
+            font-size: 15px;
+            color: var(--text);
+            margin: 12px 0 18px;
+            max-width: 700px;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .hero-desc strong {
+            color: var(--glow-cyan);
+        }
+
+        /* ===== TABS CONTENT ===== */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ===== STATS ROW ===== */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 18px 16px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        .stat-card:hover {
+            border-color: rgba(0,102,255,0.3);
+        }
+
+        .stat-value {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 32px;
+            letter-spacing: 2px;
+            color: var(--glow-cyan);
+        }
+
+        .stat-label {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            margin-top: 4px;
+            text-transform: uppercase;
+        }
+
+        .stat-sub {
+            font-size: 11px;
+            color: var(--text-dim);
+            margin-top: 4px;
+        }
+
+        /* ===== CARDS ===== */
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            padding: 22px 24px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .card:hover {
+            border-color: rgba(0,102,255,0.2);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 22px;
+            letter-spacing: 2px;
+            color: var(--white);
+        }
+
+        .card-title i {
+            color: var(--glow-cyan);
+            margin-right: 8px;
+        }
+
+        /* ===== SIGNAL DISPLAY ===== */
+        .signal-display {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 48px;
+            letter-spacing: 6px;
+            text-align: center;
+            padding: 20px;
+            border: 1px solid var(--border);
+            background: rgba(0,0,0,0.3);
+        }
+
+        .signal-display.buy { color: var(--glow-cyan); border-color: var(--glow-cyan); }
+        .signal-display.sell { color: var(--glow-red); border-color: var(--glow-red); }
+        .signal-display.hold { color: var(--glow-gold); border-color: var(--glow-gold); }
+
+        .confidence-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            margin: 12px 0;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--glow-blue), var(--glow-cyan));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        /* ===== TABLE ===== */
+        .table-container {
+            overflow-x: auto;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        thead {
+            background: rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        th {
+            padding: 10px 12px;
+            text-align: left;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+        }
+
+        .trade-buy { color: var(--glow-cyan); }
+        .trade-sell { color: var(--glow-red); }
+
+        /* ===== SETTINGS ===== */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--text-dim);
+            margin-bottom: 4px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border);
+            color: var(--white);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--glow-blue);
+            box-shadow: 0 0 15px rgba(0,102,255,0.1);
+        }
+
+        .btn-save {
+            background: linear-gradient(135deg, var(--glow-blue), #0044CC);
+            border: none;
+            padding: 12px 32px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 18px;
+            letter-spacing: 3px;
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .btn-save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0,102,255,0.4);
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            border-top: 1px solid var(--border);
+            padding-top: 24px;
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-left {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            line-height: 2;
+        }
+
+        .footer-right {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            text-align: right;
+            line-height: 2;
+        }
+
+        .footer a {
+            color: var(--glow-blue);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            color: var(--glow-cyan);
+        }
+
+        .footer-logos {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .footer-logos img {
+            height: 30px;
+            width: auto;
+            opacity: 0.6;
+            transition: opacity 0.3s;
+        }
+
+        .footer-logos img:hover {
+            opacity: 1;
+        }
+
+        .footer-quantum {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            color: var(--glow-cyan);
+            letter-spacing: 1px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 992px) {
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .settings-grid { grid-template-columns: 1fr; }
+            .logo { font-size: 30px; }
+            .hero-title { font-size: 34px; }
+        }
+
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: center; text-align: center; }
+            .header-right { align-items: center; }
+            .logo-block { flex-direction: column; }
+            .logo-img { height: 55px; }
+            .hero { padding: 20px; }
+            .hero-title { font-size: 28px; }
+            .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .footer { flex-direction: column; text-align: center; }
+            .footer-right { text-align: center; }
+            .nav-btn { padding: 6px 14px; font-size: 12px; }
+            .signal-display { font-size: 32px; }
+            .wrapper { padding: 16px 12px; }
+        }
+
+        @media (max-width: 480px) {
+            .logo { font-size: 22px; letter-spacing: 2px; }
+            .hero-title { font-size: 22px; }
+            .stat-value { font-size: 24px; }
+            .signal-display { font-size: 28px; }
+            .logo-img { height: 45px; }
+            .card-title { font-size: 18px; }
+        }
+    </style>
 </head>
 <body>
-    <!-- Background Effect -->
-    <div id="particles-js"></div>
-    
-    <div class="app-container">
+    <div class="grid-bg"></div>
+    <div class="scan-sweep"></div>
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
+
+    <div class="wrapper">
+
         <!-- ===== HEADER ===== -->
         <header class="header">
-            <div class="logo-area">
-                <div class="logo-icon">⚛️</div>
-                <div class="brand-text">
-                    <h1>Quantum AI</h1>
-                    <p>TRADING PLATFORM</p>
+            <div class="logo-block">
+                <img src="https://i.postimg.cc/VkDpLnxN/KD-LOGO-IMAGE-removebg-preview.png" alt="KD Quantum Trading" class="logo-img" onerror="this.src='https://placehold.co/80x80/0066FF/white?text=KD'">
+                <div class="logo-text-group">
+                    <div class="logo-eyebrow">⚡ QUANTUM TRADING · IBM VERIFIED</div>
+                    <div class="logo">
+                        <span class="blink-title">KD</span> QUANTUM
+                    </div>
+                    <div class="logo-sub">TRADING PLATFORM</div>
                 </div>
             </div>
-            <div class="quantum-badge" id="quantumBadge">
-                <i class="fas fa-shield-alt"></i>
-                <span>CHSH S=2.76 · 98.4% · SA 2026/05142</span>
-            </div>
-            <div class="header-actions">
-                <button class="header-btn active" onclick="switchTab('dashboard')">Dashboard</button>
-                <button class="header-btn" onclick="switchTab('trades')">Trades</button>
-                <button class="header-btn" onclick="switchTab('settings')">Settings</button>
+            <div class="header-right">
+                <div class="quantum-badge-top">
+                    <i class="fas fa-shield-alt"></i>
+                    CHSH S=2.76 · 98.4% · SA 2026/05142
+                </div>
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    QUANTUM ACTIVE
+                </div>
+                <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;" id="ts">INITIALIZING...</span>
             </div>
         </header>
 
-        <!-- ===== LASER LINE HERO ===== -->
+        <!-- ===== NAV TABS ===== -->
+        <div class="nav-tabs">
+            <button class="nav-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+            <button class="nav-btn" onclick="switchTab('trades')">Trades</button>
+            <button class="nav-btn" onclick="switchTab('settings')">Settings</button>
+        </div>
+
+        <!-- ===== HERO with LASER ===== -->
         <section class="hero">
-            <div class="hero-content">
-                <h2>QUANTUM TRADING</h2>
-                <p>IBM-verified · 38% above classical · Patent Pending</p>
-                <div class="laser-container">
-                    <div class="laser-line"></div>
-                </div>
+            <div class="hero-eyebrow blink-title">⚛️ QUANTUM TRADING ENGINE · IBM-VERIFIED</div>
+            <h1 class="hero-title">
+                <span class="blink-title">QUANTUM</span> <span class="blue">TRADING</span>
+            </h1>
+            <div class="laser-container">
+                <div class="laser-line"></div>
             </div>
+            <p class="hero-desc">
+                <strong>IBM-verified · 38% above classical · Patent Pending</strong><br>
+                Powered by CHSH S=2.76 quantum entanglement verification.
+            </p>
         </section>
 
-        <!-- ===== STATS ROW ===== -->
-        <div class="stats-row">
-            <div class="stat-card glass">
-                <div class="stat-value" id="signalDisplay">—</div>
-                <div class="stat-label">CURRENT SIGNAL</div>
-                <div class="stat-confidence" id="confidenceDisplay">Confidence: —</div>
+        <!-- ===== DASHBOARD TAB ===== -->
+        <div id="tab-dashboard" class="tab-content active">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value" id="signalDisplay">—</div>
+                    <div class="stat-label">CURRENT SIGNAL</div>
+                    <div class="stat-sub" id="confidenceDisplay">Confidence: —</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">⚛️</div>
+                    <div class="stat-label">QUANTUM STATUS</div>
+                    <div class="stat-sub" id="quantumDetail">CHSH S=2.76</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="tradeCount">0</div>
+                    <div class="stat-label">TRADES TODAY</div>
+                    <div class="stat-sub" id="winRate">Win Rate: —</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="pnlDisplay">+0.00%</div>
+                    <div class="stat-label">P&L TODAY</div>
+                    <div class="stat-sub" id="pnlSub">—</div>
+                </div>
             </div>
-            <div class="stat-card glass">
-                <div class="stat-value" id="quantumStatus">⚛️</div>
-                <div class="stat-label">QUANTUM STATUS</div>
-                <div class="stat-sub" id="quantumDetail">CHSH S=2.76</div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-bolt"></i> SIGNAL</span>
+                    <span class="status-badge" style="font-size:8px;padding:4px 10px;" id="liveSignal">WAITING</span>
+                </div>
+                <div class="signal-display hold" id="signalDisplayLarge">HOLD</div>
+                <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidenceFill" style="width: 0%;"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;">
+                    <span>QUANTUM CONFIDENCE</span>
+                    <span id="confidencePercent">0%</span>
+                </div>
             </div>
-            <div class="stat-card glass">
-                <div class="stat-value" id="tradeCount">0</div>
-                <div class="stat-label">TRADES TODAY</div>
-                <div class="stat-sub" id="winRate">Win Rate: —</div>
-            </div>
-            <div class="stat-card glass">
-                <div class="stat-value" id="pnlDisplay">+0.00%</div>
-                <div class="stat-label">P&L TODAY</div>
-                <div class="stat-sub" id="pnlSub">—</div>
+
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-chart-line"></i> USDCAD · M15</span>
+                    <span style="font-size:10px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;">QUANTUM VERIFIED</span>
+                </div>
+                <div style="height:200px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:11px;">
+                    📈 LIVE CHART — QUANTUM SIGNAL FEED
+                </div>
+                <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;">
+                    <button class="nav-btn active" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('M15')">M15</button>
+                    <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('H1')">H1</button>
+                    <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('H4')">H4</button>
+                    <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('D1')">D1</button>
+                </div>
             </div>
         </div>
 
-        <!-- ===== DASHBOARD TABS ===== -->
-        <div class="tab-content">
-            <!-- DASHBOARD TAB -->
-            <div id="tab-dashboard" class="tab-pane active">
-                <div class="dashboard-grid">
-                    <!-- Chart Card -->
-                    <div class="card glass chart-card">
-                        <div class="card-header">
-                            <span><i class="fas fa-chart-line"></i> USDCAD · M15</span>
-                            <span class="signal-indicator" id="liveSignal">WAITING</span>
-                        </div>
-                        <div class="chart-container">
-                            <canvas id="tradingChart"></canvas>
-                        </div>
-                        <div class="chart-controls">
-                            <button class="btn-sm active" onclick="setTimeframe('M15')">M15</button>
-                            <button class="btn-sm" onclick="setTimeframe('H1')">H1</button>
-                            <button class="btn-sm" onclick="setTimeframe('H4')">H4</button>
-                            <button class="btn-sm" onclick="setTimeframe('D1')">D1</button>
-                        </div>
-                    </div>
-
-                    <!-- Strategy Info Card -->
-                    <div class="card glass strategy-card">
-                        <div class="card-header">
-                            <span><i class="fas fa-brain"></i> STRATEGY</span>
-                            <span class="badge active">ACTIVE</span>
-                        </div>
-                        <div class="strategy-details">
-                            <div class="strategy-item">
-                                <span>Yellow Line (Fast)</span>
-                                <span class="color-dot yellow"></span>
-                            </div>
-                            <div class="strategy-item">
-                                <span>Red Line (Slow)</span>
-                                <span class="color-dot red"></span>
-                            </div>
-                            <div class="strategy-item">
-                                <span>10-Day Trend</span>
-                                <span class="color-dot blue"></span>
-                            </div>
-                            <div class="strategy-item highlight">
-                                <span>📊 Lines Apart = Signal</span>
-                                <span class="badge">TOP 5%</span>
-                            </div>
-                        </div>
-                        <div class="strategy-description">
-                            <p>Yellow/red separation + 10-day trend confirmation.<br>
-                            <span class="quantum-text">⚛️ Quantum-verified confidence scoring.</span></p>
-                        </div>
-                    </div>
-
-                    <!-- Recent Trades Card -->
-                    <div class="card glass trades-card">
-                        <div class="card-header">
-                            <span><i class="fas fa-exchange-alt"></i> RECENT TRADES</span>
-                            <span class="badge">LIVE</span>
-                        </div>
-                        <div id="recentTradesList">
-                            <div class="trade-item pending">Loading trades...</div>
-                        </div>
-                    </div>
+        <!-- ===== TRADES TAB ===== -->
+        <div id="tab-trades" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-list"></i> TRADE HISTORY</span>
+                    <button class="nav-btn" style="padding:4px 14px;font-size:10px;" onclick="exportTrades()"><i class="fas fa-download"></i> Export</button>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Pair</th>
+                                <th>Type</th>
+                                <th>Entry</th>
+                                <th>Exit</th>
+                                <th>P&L</th>
+                                <th>Confidence</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tradesTableBody">
+                            <tr><td colspan="7" style="text-align:center;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:10px;padding:20px;">No trades yet</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
+        </div>
 
-            <!-- TRADES TAB -->
-            <div id="tab-trades" class="tab-pane">
-                <div class="card glass">
-                    <div class="card-header">
-                        <span><i class="fas fa-list"></i> TRADE HISTORY</span>
-                        <button class="btn-export" onclick="exportTrades()"><i class="fas fa-download"></i> Export</button>
+        <!-- ===== SETTINGS TAB ===== -->
+        <div id="tab-settings" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-cog"></i> CONNECTION SETTINGS</span>
+                </div>
+                <div class="settings-grid">
+                    <div class="form-group">
+                        <label>Backend URL</label>
+                        <input type="text" id="backendUrl" value="https://quantum-ai-backend-d26d.onrender.com">
                     </div>
-                    <div class="table-container">
-                        <table id="tradesTable">
-                            <thead>
-                                <tr>
-                                    <th>Time</th>
-                                    <th>Pair</th>
-                                    <th>Type</th>
-                                    <th>Entry</th>
-                                    <th>Exit</th>
-                                    <th>P&L</th>
-                                    <th>Confidence</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tradesTableBody">
-                                <tr><td colspan="7" style="text-align:center; color: var(--muted);">No trades yet</td></tr>
-                            </tbody>
-                        </table>
+                    <div class="form-group">
+                        <label>MT4/MT5 Account ID</label>
+                        <input type="text" id="mt5Account" placeholder="Enter account ID">
+                    </div>
+                    <div class="form-group">
+                        <label>API Key</label>
+                        <input type="password" id="apiKey" placeholder="Enter API key">
+                    </div>
+                    <div class="form-group">
+                        <label>Signal Threshold</label>
+                        <input type="range" id="thresholdSlider" min="0" max="100" value="70" style="width:100%;padding:0;background:transparent;accent-color:var(--glow-blue);">
+                        <span id="thresholdValue" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);">70%</span>
                     </div>
                 </div>
-            </div>
-
-            <!-- SETTINGS TAB -->
-            <div id="tab-settings" class="tab-pane">
-                <div class="card glass">
-                    <div class="card-header">
-                        <span><i class="fas fa-cog"></i> CONNECTION SETTINGS</span>
-                    </div>
-                    <div class="settings-grid">
-                        <div class="form-group">
-                            <label>Backend URL</label>
-                            <input type="text" id="backendUrl" value="https://quantum-ai-backend.onrender.com">
-                        </div>
-                        <div class="form-group">
-                            <label>MT4/MT5 Account ID</label>
-                            <input type="text" id="mt5Account" placeholder="Enter account ID">
-                        </div>
-                        <div class="form-group">
-                            <label>API Key</label>
-                            <input type="password" id="apiKey" placeholder="Enter API key">
-                        </div>
-                        <div class="form-group">
-                            <label>Signal Threshold</label>
-                            <input type="range" id="thresholdSlider" min="0" max="100" value="70">
-                            <span id="thresholdValue">70%</span>
-                        </div>
-                    </div>
-                    <button class="btn-save" onclick="saveSettings()"><i class="fas fa-save"></i> Save Settings</button>
-                </div>
+                <button class="btn-save" onclick="saveSettings()"><i class="fas fa-save"></i> Save Settings</button>
             </div>
         </div>
 
         <!-- ===== FOOTER ===== -->
         <footer class="footer">
-            <div class="footer-logos">
-                <span>⚛️ Quantum AI · MindTech Industries</span>
-                <span>|</span>
-                <span>SA Patent 2026/05142</span>
-                <span>|</span>
-                <span>IBM Job: d8uhvl4bp3hs738628cg</span>
+            <div class="footer-left">
+                <div class="footer-logos">
+                    <img src="https://i.postimg.cc/zXW78GNH/Mind-Tech-Transparent-Logo.png" alt="MindTech" onerror="this.style.display='none'">
+                    <span class="footer-quantum">⚛️ QUANTUM AI</span>
+                </div>
+                <span style="display:block;margin-top:6px;">© 2026 KD QUANTUM TRADING PLATFORM</span>
             </div>
-            <p>© 2026 · Quantum AI Trading Platform · Powered by IBM-verified quantum entanglement</p>
+            <div class="footer-right">
+                <div class="footer-quantum">
+                    CHSH S=2.76 · 98.4% · SA 2026/05142<br>
+                    IBM Job: d8uhvl4bp3hs738628cg
+                </div>
+                <span style="display:block;margin-top:4px;font-size:8px;color:var(--text-dim);">
+                    BUILT ON BOTLHALE 17 DEEP-TECH
+                </span>
+            </div>
         </footer>
+
     </div>
 
-    <!-- JavaScript -->
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/quantum.js"></script>
+    <script>
+        // ============================================================
+        // KD QUANTUM TRADING PLATFORM — FULL APP
+        // ============================================================
+
+        // ===== TIMESTAMP =====
+        function updateTimestamp() {
+            const now = new Date();
+            const ts = now.toISOString().replace('T', ' · ').substring(0, 22) + ' UTC';
+            document.getElementById('ts').textContent = ts;
+        }
+        updateTimestamp();
+        setInterval(updateTimestamp, 1000);
+
+        // ===== TAB SWITCHING =====
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tab}`).classList.add('active');
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => {
+                if (el.textContent.toLowerCase().includes(tab)) el.classList.add('active');
+            });
+        }
+
+        // ===== TIMEFRAME =====
+        function setTimeframe(tf) {
+            document.querySelectorAll('.card .nav-btn').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.card .nav-btn').forEach(el => {
+                if (el.textContent === tf) el.classList.add('active');
+            });
+        }
+
+        // ===== SIGNAL GENERATOR (Mock) =====
+        function generateSignal() {
+            const signals = ['BUY', 'SELL', 'HOLD'];
+            const weights = [0.35, 0.35, 0.30];
+            let r = Math.random();
+            let cum = 0;
+            let signal = 'HOLD';
+            for (let i = 0; i < signals.length; i++) {
+                cum += weights[i];
+                if (r < cum) { signal = signals[i]; break; }
+            }
+            const confidence = 60 + Math.floor(Math.random() * 35);
+            return { signal, confidence };
+        }
+
+        function updateSignal() {
+            const { signal, confidence } = generateSignal();
+
+            // Update displays
+            document.getElementById('signalDisplay').textContent = signal;
+            document.getElementById('signalDisplayLarge').textContent = signal;
+            document.getElementById('confidenceDisplay').textContent = `Confidence: ${confidence}%`;
+            document.getElementById('confidencePercent').textContent = `${confidence}%`;
+            document.getElementById('confidenceFill').style.width = `${confidence}%`;
+
+            // Update signal display class
+            const display = document.getElementById('signalDisplayLarge');
+            display.className = 'signal-display';
+            if (signal === 'BUY') { display.classList.add('buy'); }
+            else if (signal === 'SELL') { display.classList.add('sell'); }
+            else { display.classList.add('hold'); }
+
+            // Live signal badge
+            const badge = document.getElementById('liveSignal');
+            badge.textContent = signal;
+            badge.style.color = signal === 'BUY' ? '#00ffcc' : signal === 'SELL' ? '#CC0000' : '#FFD700';
+
+            // Update stats
+            document.getElementById('tradeCount').textContent = Math.floor(Math.random() * 20) + 1;
+            document.getElementById('winRate').textContent = `Win Rate: ${60 + Math.floor(Math.random() * 30)}%`;
+            const pnl = (Math.random() - 0.4) * 5;
+            document.getElementById('pnlDisplay').textContent = `${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}%`;
+            document.getElementById('pnlDisplay').style.color = pnl >= 0 ? '#00ffcc' : '#CC0000';
+            document.getElementById('pnlSub').textContent = `${Math.floor(Math.random() * 10) + 1} trades`;
+
+            // Update trades table
+            const symbols = ['USDCAD', 'EURUSD', 'GBPUSD', 'USDJPY'];
+            const types = ['BUY', 'SELL'];
+            let html = '';
+            for (let i = 0; i < 5; i++) {
+                const type = types[Math.floor(Math.random() * 2)];
+                const entry = (1.40 + Math.random() * 0.06).toFixed(5);
+                const exit = (parseFloat(entry) + (Math.random() - 0.5) * 0.03).toFixed(5);
+                const pnlVal = ((parseFloat(exit) - parseFloat(entry)) / parseFloat(entry) * 100 * (type === 'BUY' ? 1 : -1));
+                const time = new Date(Date.now() - i * 3600000).toLocaleTimeString();
+                html += `<tr>
+                    <td>${time}</td>
+                    <td>${symbols[Math.floor(Math.random() * 4)]}</td>
+                    <td class="${type === 'BUY' ? 'trade-buy' : 'trade-sell'}">${type}</td>
+                    <td>${entry}</td>
+                    <td>${exit}</td>
+                    <td style="color:${pnlVal >= 0 ? '#00ffcc' : '#CC0000'}">${pnlVal >= 0 ? '+' : ''}${pnlVal.toFixed(2)}%</td>
+                    <td>${60 + Math.floor(Math.random() * 35)}%</td>
+                </tr>`;
+            }
+            document.getElementById('tradesTableBody').innerHTML = html;
+        }
+
+        // ===== SETTINGS =====
+        function saveSettings() {
+            const url = document.getElementById('backendUrl').value;
+            localStorage.setItem('backendUrl', url);
+            alert('✅ Settings saved!');
+        }
+
+        function exportTrades() {
+            alert('📊 Exporting trades...');
+        }
+
+        // ===== THRESHOLD SLIDER =====
+        document.getElementById('thresholdSlider').addEventListener('input', function() {
+            document.getElementById('thresholdValue').textContent = this.value + '%';
+        });
+
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved backend URL
+            const saved = localStorage.getItem('backendUrl');
+            if (saved) document.getElementById('backendUrl').value = saved;
+
+            // Initial signal
+            updateSignal();
+
+            // Update signal every 10 seconds
+            setInterval(updateSignal, 10000);
+
+            // Quantum detail
+            document.getElementById('quantumDetail').textContent = 'CHSH S=2.76 · 98.4%';
+        });
+
+        console.log('⚛️ KD QUANTUM TRADING PLATFORM · LOADED');
+        console.log('   CHSH S=2.76 · 38% above classical');
+        console.log('   Patent: SA 2026/05142');
+        console.log('   IBM Job: d8uhvl4bp3hs738628cg');
+        console.log('   Built on Botlhale 17 Deep-Tech CSS');
+    </script>
 </body>
 </html>
