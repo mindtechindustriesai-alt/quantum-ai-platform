@@ -251,7 +251,7 @@
             box-shadow: 0 0 25px rgba(0,102,255,0.25);
         }
 
-        /* ===== HERO (NO HORIZONTAL LASER) ===== */
+        /* ===== HERO ===== */
         .hero {
             background: linear-gradient(135deg, rgba(0,102,255,0.05) 0%, rgba(204,0,0,0.03) 100%);
             border: 1px solid rgba(0,102,255,0.15);
@@ -360,8 +360,8 @@
         /* ===== CHART CONTAINER ===== */
         .chart-container {
             width: 100%;
-            height: 220px;
-            background: rgba(0, 0, 0, 0.5);
+            height: 260px;
+            background: rgba(0, 0, 0, 0.6);
             border: 1px solid var(--border);
             border-radius: 8px;
             position: relative;
@@ -372,6 +372,30 @@
             height: 100%;
             display: block;
         }
+
+        .chart-legend {
+            display: flex;
+            gap: 18px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 1px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-dim);
+        }
+        .legend-color {
+            width: 16px;
+            height: 3px;
+            border-radius: 2px;
+        }
+        .legend-color.yellow { background: var(--glow-gold); }
+        .legend-color.red { background: var(--glow-red); }
+        .legend-color.blue { background: var(--glow-blue); }
 
         /* ===== SIGNAL DISPLAY ===== */
         .signal-display {
@@ -548,6 +572,7 @@
             .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
             .footer { flex-direction: column; text-align: center; }
             .footer-right { text-align: center; }
+            .chart-container { height: 200px; }
         }
         @media (max-width: 480px) {
             .logo { font-size: 24px; letter-spacing: 2px; }
@@ -556,6 +581,7 @@
             .signal-display { font-size: 32px; }
             .logo-img { height: 55px; }
             .card-title { font-size: 18px; }
+            .chart-container { height: 160px; }
         }
     </style>
 </head>
@@ -601,7 +627,7 @@
             <button class="nav-btn" onclick="switchTab('settings')">Settings</button>
         </div>
 
-        <!-- ===== HERO (NO HORIZONTAL LASER) ===== -->
+        <!-- ===== HERO ===== -->
         <section class="hero">
             <div class="hero-eyebrow blink-title">⚛️ QUANTUM TRADING ENGINE · IBM-VERIFIED</div>
             <h1 class="hero-title">
@@ -656,12 +682,18 @@
             <div class="card">
                 <div class="card-header">
                     <span class="card-title"><i class="fas fa-chart-line"></i> USDCAD · M15</span>
-                    <span style="font-size:10px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;">LIVE CHART</span>
+                    <span style="font-size:10px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;">YELLOW/RED + 10-DAY TREND</span>
                 </div>
                 <div class="chart-container">
                     <canvas id="tradingChart"></canvas>
                 </div>
-                <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;">
+                <div class="chart-legend">
+                    <span class="legend-item"><span class="legend-color yellow"></span> Yellow (Fast)</span>
+                    <span class="legend-item"><span class="legend-color red"></span> Red (Slow)</span>
+                    <span class="legend-item"><span class="legend-color blue"></span> 10-Day Trend</span>
+                    <span class="legend-item" style="color:var(--text-dim);font-size:8px;">📊 Lines apart = signal</span>
+                </div>
+                <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
                     <button class="nav-btn active" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('M15')">M15</button>
                     <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('H1')">H1</button>
                     <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('H4')">H4</button>
@@ -774,7 +806,7 @@
             });
         }
 
-        // ===== LIVE CHART (Candlestick Simulation) =====
+        // ===== LIVE CHART — YELLOW/RED + 10-DAY TREND =====
         let chartCanvas, ctx;
         let chartData = [];
         const CHART_POINTS = 60;
@@ -784,7 +816,6 @@
             if (!chartCanvas) return;
             ctx = chartCanvas.getContext('2d');
             
-            // Set canvas size
             chartCanvas.width = chartCanvas.clientWidth * (window.devicePixelRatio || 1);
             chartCanvas.height = chartCanvas.clientHeight * (window.devicePixelRatio || 1);
             ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
@@ -798,30 +829,20 @@
                 const change = (Math.random() - 0.48) * 0.002;
                 price += change;
                 price = Math.max(1.38, Math.min(1.46, price));
-                chartData.push({
-                    high: price + Math.random() * 0.002,
-                    low: price - Math.random() * 0.002,
-                    open: price,
-                    close: price + (Math.random() - 0.5) * 0.003
-                });
+                chartData.push(price);
             }
             
             drawChart();
             
             // Update every 3 seconds
-            setInterval(addNewCandle, 3000);
+            setInterval(addNewDataPoint, 3000);
         }
 
-        function addNewCandle() {
+        function addNewDataPoint() {
             const last = chartData[chartData.length - 1];
-            const newPrice = last.close + (Math.random() - 0.48) * 0.002;
-            const clamped = Math.max(1.38, Math.min(1.46, newPrice));
-            chartData.push({
-                high: clamped + Math.random() * 0.002,
-                low: clamped - Math.random() * 0.002,
-                open: last.close,
-                close: clamped
-            });
+            const change = (Math.random() - 0.48) * 0.002;
+            const newPrice = Math.max(1.38, Math.min(1.46, last + change));
+            chartData.push(newPrice);
             if (chartData.length > CHART_POINTS) chartData.shift();
             drawChart();
         }
@@ -837,20 +858,51 @@
             
             // Calculate min/max for scaling
             let min = Infinity, max = -Infinity;
-            chartData.forEach(c => {
-                if (c.low < min) min = c.low;
-                if (c.high > max) max = c.high;
+            chartData.forEach(v => {
+                if (v < min) min = v;
+                if (v > max) max = v;
             });
-            const range = (max - min) * 1.1;
+            const range = (max - min) * 1.15;
             const mid = (max + min) / 2;
             const top = mid + range / 2;
             const bottom = mid - range / 2;
             
-            const candleWidth = (width / chartData.length) * 0.6;
-            const halfWidth = candleWidth / 2;
+            // --- CALCULATE MOVING AVERAGES ---
+            const fastMA = [];
+            const slowMA = [];
+            const trendMA = [];
             
-            // Draw grid lines
-            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+            for (let i = 0; i < chartData.length; i++) {
+                // Fast MA (5 periods — Yellow)
+                let fastSum = 0;
+                let fastCount = 0;
+                for (let j = Math.max(0, i - 4); j <= i; j++) {
+                    fastSum += chartData[j];
+                    fastCount++;
+                }
+                fastMA.push(fastCount > 0 ? fastSum / fastCount : chartData[i]);
+                
+                // Slow MA (10 periods — Red)
+                let slowSum = 0;
+                let slowCount = 0;
+                for (let j = Math.max(0, i - 9); j <= i; j++) {
+                    slowSum += chartData[j];
+                    slowCount++;
+                }
+                slowMA.push(slowCount > 0 ? slowSum / slowCount : chartData[i]);
+                
+                // 10-Day Trend (20 periods — Blue, dashed)
+                let trendSum = 0;
+                let trendCount = 0;
+                for (let j = Math.max(0, i - 19); j <= i; j++) {
+                    trendSum += chartData[j];
+                    trendCount++;
+                }
+                trendMA.push(trendCount > 0 ? trendSum / trendCount : chartData[i]);
+            }
+            
+            // --- DRAW GRID ---
+            ctx.strokeStyle = 'rgba(255,255,255,0.04)';
             ctx.lineWidth = 0.5;
             for (let i = 0; i < 5; i++) {
                 const y = (height / 5) * i;
@@ -860,32 +912,63 @@
                 ctx.stroke();
             }
             
-            // Draw candles
-            chartData.forEach((candle, i) => {
-                const x = (i / chartData.length) * width + (width / chartData.length) * 0.2;
-                const highY = height - ((candle.high - bottom) / (top - bottom)) * height;
-                const lowY = height - ((candle.low - bottom) / (top - bottom)) * height;
-                const openY = height - ((candle.open - bottom) / (top - bottom)) * height;
-                const closeY = height - ((candle.close - bottom) / (top - bottom)) * height;
+            // --- DRAW PRICE CANDLES (Grey/Body) ---
+            const candleWidth = (width / chartData.length) * 0.5;
+            const halfWidth = candleWidth / 2;
+            
+            chartData.forEach((price, i) => {
+                const x = (i / chartData.length) * width + (width / chartData.length) * 0.15;
+                const y = height - ((price - bottom) / (top - bottom)) * height;
                 
-                const isGreen = candle.close >= candle.open;
-                ctx.strokeStyle = isGreen ? '#00ffcc' : '#CC0000';
-                ctx.fillStyle = isGreen ? 'rgba(0,255,204,0.2)' : 'rgba(204,0,0,0.2)';
-                ctx.lineWidth = 0.8;
-                
-                // Wick
-                ctx.beginPath();
-                ctx.moveTo(x, highY);
-                ctx.lineTo(x, lowY);
-                ctx.stroke();
-                
-                // Body
-                const bodyTop = Math.min(openY, closeY);
-                const bodyBottom = Math.max(openY, closeY);
-                const bodyHeight = Math.max(1, bodyBottom - bodyTop);
-                ctx.fillRect(x - halfWidth, bodyTop, candleWidth, bodyHeight);
-                ctx.strokeRect(x - halfWidth, bodyTop, candleWidth, bodyHeight);
+                ctx.fillStyle = 'rgba(255,255,255,0.06)';
+                ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+                ctx.lineWidth = 0.5;
+                ctx.fillRect(x - halfWidth, y - 2, candleWidth, 4);
+                ctx.strokeRect(x - halfWidth, y - 2, candleWidth, 4);
             });
+            
+            // --- DRAW YELLOW LINE (Fast MA) ---
+            ctx.beginPath();
+            ctx.strokeStyle = '#FFD700';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < fastMA.length; i++) {
+                const x = (i / fastMA.length) * width + (width / fastMA.length) * 0.15;
+                const y = height - ((fastMA[i] - bottom) / (top - bottom)) * height;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // --- DRAW RED LINE (Slow MA) ---
+            ctx.beginPath();
+            ctx.strokeStyle = '#CC0000';
+            ctx.lineWidth = 2;
+            for (let i = 0; i < slowMA.length; i++) {
+                const x = (i / slowMA.length) * width + (width / slowMA.length) * 0.15;
+                const y = height - ((slowMA[i] - bottom) / (top - bottom)) * height;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            
+            // --- DRAW 10-DAY TREND (Blue, Dashed) ---
+            ctx.beginPath();
+            ctx.strokeStyle = '#0066FF';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            for (let i = 0; i < trendMA.length; i++) {
+                const x = (i / trendMA.length) * width + (width / trendMA.length) * 0.15;
+                const y = height - ((trendMA[i] - bottom) / (top - bottom)) * height;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+            }
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            // --- LABEL — "Lines apart = signal" ---
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            ctx.font = '9px "Share Tech Mono", monospace';
+            ctx.fillText('📊 LINES APART = SIGNAL', width - 160, 20);
         }
 
         // ===== SIGNAL GENERATOR =====
@@ -976,15 +1059,19 @@
             
             setTimeout(initChart, 100);
             
-            // Handle resize
             window.addEventListener('resize', function() {
                 if (chartCanvas) {
-                    initChart();
+                    const rect = chartCanvas.getBoundingClientRect();
+                    chartCanvas.width = rect.width * (window.devicePixelRatio || 1);
+                    chartCanvas.height = rect.height * (window.devicePixelRatio || 1);
+                    ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+                    drawChart();
                 }
             });
         });
 
         console.log('⚛️ KD QUANTUM TRADING PLATFORM · LOADED');
+        console.log('   📊 Yellow (fast), Red (slow), 10-Day Trend (blue)');
         console.log('   CHSH S=2.76 · 38% above classical');
         console.log('   Patent: SA 2026/05142');
         console.log('   IBM Job: d8uhvl4bp3hs738628cg');
