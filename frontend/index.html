@@ -20,12 +20,9 @@
             --glow-red: #CC0000;
             --glow-cyan: #00ffcc;
             --glow-gold: #FFD700;
-            --glow-warn: #ff6b00;
             --text: #8ab4cc;
             --text-dim: #2d4a5e;
             --white: #e8f4ff;
-            --tech-blue: #0066FF;
-            --corp-red: #CC0000;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -39,7 +36,7 @@
             position: relative;
         }
 
-        /* ===== GRID & NOISE OVERLAY ===== */
+        /* Background Noise & Grid */
         body::before {
             content: '';
             position: fixed;
@@ -67,19 +64,7 @@
             pointer-events: none;
         }
 
-        .corner {
-            position: fixed;
-            width: 30px; height: 30px;
-            border-color: rgba(0,102,255,0.3);
-            border-style: solid;
-            z-index: 500;
-        }
-        .corner-tl { top: 16px; left: 16px; border-width: 2px 0 0 2px; }
-        .corner-tr { top: 16px; right: 16px; border-width: 2px 2px 0 0; }
-        .corner-bl { bottom: 16px; left: 16px; border-width: 0 0 2px 2px; }
-        .corner-br { bottom: 16px; right: 16px; border-width: 0 2px 2px 0; }
-
-        /* ===== SCAN SWEEP ===== */
+        /* Vertical Scan Line */
         .scan-sweep {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -96,50 +81,26 @@
             100% { top: 100vh; opacity: 0; }
         }
 
-        /* ===== LASER LINE ===== */
-        .laser-container {
-            width: 100%;
-            max-width: 800px;
-            height: 4px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 4px;
-            margin: 15px auto 10px;
-            overflow: hidden;
-            position: relative;
+        /* Corner Decorations */
+        .corner {
+            position: fixed;
+            width: 30px; height: 30px;
+            border-color: rgba(0,102,255,0.3);
+            border-style: solid;
+            z-index: 500;
         }
+        .corner-tl { top: 16px; left: 16px; border-width: 2px 0 0 2px; }
+        .corner-tr { top: 16px; right: 16px; border-width: 2px 2px 0 0; }
+        .corner-bl { bottom: 16px; left: 16px; border-width: 0 0 2px 2px; }
+        .corner-br { bottom: 16px; right: 16px; border-width: 0 2px 2px 0; }
 
-        .laser-line {
-            width: 25%;
-            height: 100%;
-            background: linear-gradient(90deg, var(--glow-blue), var(--glow-cyan), var(--glow-gold), var(--glow-blue));
-            border-radius: 4px;
-            animation: laserSweep 3s ease-in-out infinite alternate;
-            box-shadow: 0 0 30px var(--glow-blue), 0 0 60px var(--glow-cyan);
-        }
-
-        @keyframes laserSweep {
-            0% { transform: translateX(-10%); opacity: 0.7; }
-            50% { opacity: 1; box-shadow: 0 0 40px var(--glow-blue), 0 0 80px var(--glow-cyan); }
-            100% { transform: translateX(90%); opacity: 0.7; }
-        }
-
-        /* ===== BLINKING TEXT ===== */
+        /* Blinking Text */
         @keyframes blinkText {
             0%, 90%, 100% { opacity: 1; }
             95% { opacity: 0.1; }
         }
+        .blink-title { animation: blinkText 3s infinite; display: inline-block; }
 
-        .blink-title {
-            animation: blinkText 3s infinite;
-            display: inline-block;
-        }
-
-        .blink-fast {
-            animation: blinkText 1.5s infinite;
-            display: inline-block;
-        }
-
-        /* ===== WRAPPER ===== */
         .wrapper {
             max-width: 1200px;
             margin: 0 auto;
@@ -160,7 +121,6 @@
             flex-wrap: wrap;
             gap: 15px;
         }
-
         .header::after {
             content: '';
             position: absolute;
@@ -173,25 +133,21 @@
         .logo-block {
             display: flex;
             align-items: center;
-            gap: 20px;
+            gap: 25px;
         }
 
         .logo-img {
-            height: 75px;
+            height: 100px;
             width: auto;
-            filter: drop-shadow(0 0 20px rgba(0,102,255,0.3));
-            transition: filter 0.3s;
+            filter: drop-shadow(0 0 25px rgba(0,102,255,0.4));
+            transition: filter 0.3s, transform 0.3s;
         }
-
         .logo-img:hover {
-            filter: drop-shadow(0 0 40px rgba(0,102,255,0.6));
+            filter: drop-shadow(0 0 50px rgba(0,102,255,0.7));
+            transform: scale(1.03);
         }
 
-        .logo-text-group {
-            display: flex;
-            flex-direction: column;
-        }
-
+        .logo-text-group { display: flex; flex-direction: column; }
         .logo-eyebrow {
             font-family: 'Share Tech Mono', monospace;
             font-size: 10px;
@@ -200,21 +156,16 @@
             text-transform: uppercase;
             animation: blinkText 2s infinite;
         }
-
         .logo {
             font-family: 'Bebas Neue', sans-serif;
-            font-size: 38px;
+            font-size: 42px;
             letter-spacing: 4px;
             color: var(--white);
             line-height: 1;
-            text-shadow: 0 0 40px rgba(0,102,255,0.3), 0 0 80px rgba(0,102,255,0.1);
+            text-shadow: 0 0 40px rgba(0,102,255,0.3);
             position: relative;
         }
-
-        .logo .blink-title {
-            color: var(--glow-cyan);
-        }
-
+        .logo .blink-title { color: var(--glow-cyan); }
         .logo-sub {
             font-family: 'Share Tech Mono', monospace;
             font-size: 10px;
@@ -231,34 +182,6 @@
             align-items: flex-end;
             gap: 6px;
         }
-
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(0,102,255,0.08);
-            border: 1px solid rgba(0,102,255,0.3);
-            padding: 6px 14px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: var(--glow-cyan);
-        }
-
-        .status-dot {
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: var(--glow-cyan);
-            box-shadow: 0 0 8px var(--glow-cyan);
-            animation: pulse-dot 1.5s infinite;
-        }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.3; transform: scale(0.8); }
-        }
-
-        /* ===== QUANTUM BADGE ===== */
         .quantum-badge-top {
             background: rgba(138,43,226,0.12);
             border: 1px solid rgba(138,43,226,0.3);
@@ -272,19 +195,37 @@
             gap: 8px;
             box-shadow: 0 0 20px rgba(138,43,226,0.15);
         }
-
-        .quantum-badge-top i {
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(0,102,255,0.08);
+            border: 1px solid rgba(0,102,255,0.3);
+            padding: 6px 14px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 2px;
             color: var(--glow-cyan);
         }
+        .status-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--glow-cyan);
+            box-shadow: 0 0 8px var(--glow-cyan);
+            animation: pulse-dot 1.5s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.8); }
+        }
 
-        /* ===== NAV ===== */
+        /* ===== NAV TABS ===== */
         .nav-tabs {
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
             margin: 15px 0 25px;
         }
-
         .nav-btn {
             background: rgba(255,255,255,0.03);
             border: 1px solid var(--border);
@@ -298,13 +239,11 @@
             font-weight: 600;
             letter-spacing: 1px;
         }
-
         .nav-btn:hover {
             background: rgba(0,102,255,0.1);
             border-color: var(--glow-blue);
             color: var(--white);
         }
-
         .nav-btn.active {
             background: linear-gradient(135deg, var(--glow-blue), #0044CC);
             border-color: var(--glow-blue);
@@ -312,7 +251,7 @@
             box-shadow: 0 0 25px rgba(0,102,255,0.25);
         }
 
-        /* ===== HERO ===== */
+        /* ===== HERO (NO HORIZONTAL LASER) ===== */
         .hero {
             background: linear-gradient(135deg, rgba(0,102,255,0.05) 0%, rgba(204,0,0,0.03) 100%);
             border: 1px solid rgba(0,102,255,0.15);
@@ -322,7 +261,6 @@
             position: relative;
             overflow: hidden;
         }
-
         .hero::before {
             content: '';
             position: absolute;
@@ -331,7 +269,6 @@
             background: linear-gradient(90deg, var(--glow-blue), var(--glow-cyan), transparent);
             opacity: 0.6;
         }
-
         .hero-eyebrow {
             font-family: 'Share Tech Mono', monospace;
             font-size: 10px;
@@ -341,7 +278,6 @@
             text-shadow: 0 0 10px var(--glow-blue);
             animation: blinkText 2.5s infinite;
         }
-
         .hero-title {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 44px;
@@ -349,51 +285,29 @@
             color: var(--white);
             line-height: 1.1;
         }
-
-        .hero-title .blink-title {
-            color: var(--glow-cyan);
-        }
-
-        .hero-title span.blue { color: var(--glow-blue); }
-        .hero-title span.red { color: var(--glow-red); }
-        .hero-title span.gold { color: var(--glow-gold); }
-
+        .hero-title .blink-title { color: var(--glow-cyan); }
         .hero-desc {
             font-size: 15px;
             color: var(--text);
-            margin: 12px 0 18px;
+            margin: 12px 0 0;
             max-width: 700px;
             line-height: 1.6;
             font-weight: 300;
         }
+        .hero-desc strong { color: var(--glow-cyan); }
 
-        .hero-desc strong {
-            color: var(--glow-cyan);
-        }
+        /* ===== TABS ===== */
+        .tab-content { display: none; animation: fadeIn 0.4s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ===== TABS CONTENT ===== */
-        .tab-content {
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ===== STATS ROW ===== */
+        /* ===== STATS ===== */
         .stats-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 16px;
             margin-bottom: 30px;
         }
-
         .stat-card {
             background: var(--panel);
             border: 1px solid var(--border);
@@ -401,18 +315,13 @@
             text-align: center;
             transition: border-color 0.3s;
         }
-
-        .stat-card:hover {
-            border-color: rgba(0,102,255,0.3);
-        }
-
+        .stat-card:hover { border-color: rgba(0,102,255,0.3); }
         .stat-value {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 32px;
             letter-spacing: 2px;
             color: var(--glow-cyan);
         }
-
         .stat-label {
             font-family: 'Share Tech Mono', monospace;
             font-size: 9px;
@@ -421,12 +330,7 @@
             margin-top: 4px;
             text-transform: uppercase;
         }
-
-        .stat-sub {
-            font-size: 11px;
-            color: var(--text-dim);
-            margin-top: 4px;
-        }
+        .stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
 
         /* ===== CARDS ===== */
         .card {
@@ -436,11 +340,7 @@
             margin-bottom: 20px;
             transition: border-color 0.3s;
         }
-
-        .card:hover {
-            border-color: rgba(0,102,255,0.2);
-        }
-
+        .card:hover { border-color: rgba(0,102,255,0.2); }
         .card-header {
             display: flex;
             justify-content: space-between;
@@ -449,17 +349,28 @@
             padding-bottom: 12px;
             border-bottom: 1px solid var(--border);
         }
-
         .card-title {
             font-family: 'Bebas Neue', sans-serif;
             font-size: 22px;
             letter-spacing: 2px;
             color: var(--white);
         }
+        .card-title i { color: var(--glow-cyan); margin-right: 8px; }
 
-        .card-title i {
-            color: var(--glow-cyan);
-            margin-right: 8px;
+        /* ===== CHART CONTAINER ===== */
+        .chart-container {
+            width: 100%;
+            height: 220px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        #tradingChart {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
 
         /* ===== SIGNAL DISPLAY ===== */
@@ -472,7 +383,6 @@
             border: 1px solid var(--border);
             background: rgba(0,0,0,0.3);
         }
-
         .signal-display.buy { color: var(--glow-cyan); border-color: var(--glow-cyan); }
         .signal-display.sell { color: var(--glow-red); border-color: var(--glow-red); }
         .signal-display.hold { color: var(--glow-gold); border-color: var(--glow-gold); }
@@ -484,7 +394,6 @@
             margin: 12px 0;
             overflow: hidden;
         }
-
         .confidence-fill {
             height: 100%;
             background: linear-gradient(90deg, var(--glow-blue), var(--glow-cyan));
@@ -493,26 +402,23 @@
             width: 0%;
         }
 
-        /* ===== TABLE ===== */
+        /* ===== TRADES TABLE ===== */
         .table-container {
             overflow-x: auto;
             max-height: 300px;
             overflow-y: auto;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
         }
-
         thead {
             background: rgba(0,0,0,0.3);
             position: sticky;
             top: 0;
             z-index: 10;
         }
-
         th {
             padding: 10px 12px;
             text-align: left;
@@ -522,12 +428,10 @@
             color: var(--text-dim);
             text-transform: uppercase;
         }
-
         td {
             padding: 10px 12px;
             border-bottom: 1px solid rgba(255,255,255,0.04);
         }
-
         .trade-buy { color: var(--glow-cyan); }
         .trade-sell { color: var(--glow-red); }
 
@@ -537,11 +441,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
-
-        .form-group {
-            margin-bottom: 14px;
-        }
-
+        .form-group { margin-bottom: 14px; }
         .form-group label {
             display: block;
             font-family: 'Share Tech Mono', monospace;
@@ -550,7 +450,6 @@
             color: var(--text-dim);
             margin-bottom: 4px;
         }
-
         .form-group input {
             width: 100%;
             padding: 10px 14px;
@@ -561,13 +460,11 @@
             font-size: 14px;
             transition: border-color 0.3s;
         }
-
         .form-group input:focus {
             outline: none;
             border-color: var(--glow-blue);
             box-shadow: 0 0 15px rgba(0,102,255,0.1);
         }
-
         .btn-save {
             background: linear-gradient(135deg, var(--glow-blue), #0044CC);
             border: none;
@@ -581,7 +478,6 @@
             width: 100%;
             margin-top: 8px;
         }
-
         .btn-save:hover {
             transform: translateY(-2px);
             box-shadow: 0 0 30px rgba(0,102,255,0.4);
@@ -598,7 +494,6 @@
             flex-wrap: wrap;
             gap: 16px;
         }
-
         .footer-left {
             font-family: 'Share Tech Mono', monospace;
             font-size: 9px;
@@ -606,7 +501,6 @@
             letter-spacing: 2px;
             line-height: 2;
         }
-
         .footer-right {
             font-family: 'Share Tech Mono', monospace;
             font-size: 9px;
@@ -615,16 +509,6 @@
             text-align: right;
             line-height: 2;
         }
-
-        .footer a {
-            color: var(--glow-blue);
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            color: var(--glow-cyan);
-        }
-
         .footer-logos {
             display: flex;
             align-items: center;
@@ -632,18 +516,13 @@
             flex-wrap: wrap;
             justify-content: center;
         }
-
         .footer-logos img {
-            height: 30px;
+            height: 35px;
             width: auto;
-            opacity: 0.6;
+            opacity: 0.7;
             transition: opacity 0.3s;
         }
-
-        .footer-logos img:hover {
-            opacity: 1;
-        }
-
+        .footer-logos img:hover { opacity: 1; }
         .footer-quantum {
             font-family: 'Share Tech Mono', monospace;
             font-size: 9px;
@@ -655,31 +534,27 @@
         @media (max-width: 992px) {
             .stats-row { grid-template-columns: repeat(2, 1fr); }
             .settings-grid { grid-template-columns: 1fr; }
-            .logo { font-size: 30px; }
+            .logo { font-size: 32px; }
             .hero-title { font-size: 34px; }
+            .logo-img { height: 75px; }
         }
-
         @media (max-width: 768px) {
             .header { flex-direction: column; align-items: center; text-align: center; }
             .header-right { align-items: center; }
             .logo-block { flex-direction: column; }
-            .logo-img { height: 55px; }
+            .logo-img { height: 65px; }
             .hero { padding: 20px; }
             .hero-title { font-size: 28px; }
             .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
             .footer { flex-direction: column; text-align: center; }
             .footer-right { text-align: center; }
-            .nav-btn { padding: 6px 14px; font-size: 12px; }
-            .signal-display { font-size: 32px; }
-            .wrapper { padding: 16px 12px; }
         }
-
         @media (max-width: 480px) {
-            .logo { font-size: 22px; letter-spacing: 2px; }
+            .logo { font-size: 24px; letter-spacing: 2px; }
             .hero-title { font-size: 22px; }
             .stat-value { font-size: 24px; }
-            .signal-display { font-size: 28px; }
-            .logo-img { height: 45px; }
+            .signal-display { font-size: 32px; }
+            .logo-img { height: 55px; }
             .card-title { font-size: 18px; }
         }
     </style>
@@ -697,7 +572,7 @@
         <!-- ===== HEADER ===== -->
         <header class="header">
             <div class="logo-block">
-                <img src="https://i.postimg.cc/VkDpLnxN/KD-LOGO-IMAGE-removebg-preview.png" alt="KD Quantum Trading" class="logo-img" onerror="this.src='https://placehold.co/80x80/0066FF/white?text=KD'">
+                <img src="https://i.postimg.cc/VkDpLnxN/KD-LOGO-IMAGE-removebg-preview.png" alt="KD Quantum Trading" class="logo-img" onerror="this.src='https://placehold.co/100x100/0066FF/white?text=KD'">
                 <div class="logo-text-group">
                     <div class="logo-eyebrow">⚡ QUANTUM TRADING · IBM VERIFIED</div>
                     <div class="logo">
@@ -726,15 +601,12 @@
             <button class="nav-btn" onclick="switchTab('settings')">Settings</button>
         </div>
 
-        <!-- ===== HERO with LASER ===== -->
+        <!-- ===== HERO (NO HORIZONTAL LASER) ===== -->
         <section class="hero">
             <div class="hero-eyebrow blink-title">⚛️ QUANTUM TRADING ENGINE · IBM-VERIFIED</div>
             <h1 class="hero-title">
-                <span class="blink-title">QUANTUM</span> <span class="blue">TRADING</span>
+                <span class="blink-title">QUANTUM</span> <span class="glow-blue" style="color:var(--glow-blue);">TRADING</span>
             </h1>
-            <div class="laser-container">
-                <div class="laser-line"></div>
-            </div>
             <p class="hero-desc">
                 <strong>IBM-verified · 38% above classical · Patent Pending</strong><br>
                 Powered by CHSH S=2.76 quantum entanglement verification.
@@ -784,10 +656,10 @@
             <div class="card">
                 <div class="card-header">
                     <span class="card-title"><i class="fas fa-chart-line"></i> USDCAD · M15</span>
-                    <span style="font-size:10px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;">QUANTUM VERIFIED</span>
+                    <span style="font-size:10px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;">LIVE CHART</span>
                 </div>
-                <div style="height:200px;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:11px;">
-                    📈 LIVE CHART — QUANTUM SIGNAL FEED
+                <div class="chart-container">
+                    <canvas id="tradingChart"></canvas>
                 </div>
                 <div style="display:flex;gap:6px;margin-top:12px;flex-wrap:wrap;">
                     <button class="nav-btn active" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('M15')">M15</button>
@@ -808,15 +680,7 @@
                 <div class="table-container">
                     <table>
                         <thead>
-                            <tr>
-                                <th>Time</th>
-                                <th>Pair</th>
-                                <th>Type</th>
-                                <th>Entry</th>
-                                <th>Exit</th>
-                                <th>P&L</th>
-                                <th>Confidence</th>
-                            </tr>
+                            <tr><th>Time</th><th>Pair</th><th>Type</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Confidence</th></tr>
                         </thead>
                         <tbody id="tradesTableBody">
                             <tr><td colspan="7" style="text-align:center;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:10px;padding:20px;">No trades yet</td></tr>
@@ -859,6 +723,7 @@
         <footer class="footer">
             <div class="footer-left">
                 <div class="footer-logos">
+                    <img src="https://i.postimg.cc/VkDpLnxN/KD-LOGO-IMAGE-removebg-preview.png" alt="KD" onerror="this.style.display='none'">
                     <img src="https://i.postimg.cc/zXW78GNH/Mind-Tech-Transparent-Logo.png" alt="MindTech" onerror="this.style.display='none'">
                     <span class="footer-quantum">⚛️ QUANTUM AI</span>
                 </div>
@@ -909,7 +774,121 @@
             });
         }
 
-        // ===== SIGNAL GENERATOR (Mock) =====
+        // ===== LIVE CHART (Candlestick Simulation) =====
+        let chartCanvas, ctx;
+        let chartData = [];
+        const CHART_POINTS = 60;
+
+        function initChart() {
+            chartCanvas = document.getElementById('tradingChart');
+            if (!chartCanvas) return;
+            ctx = chartCanvas.getContext('2d');
+            
+            // Set canvas size
+            chartCanvas.width = chartCanvas.clientWidth * (window.devicePixelRatio || 1);
+            chartCanvas.height = chartCanvas.clientHeight * (window.devicePixelRatio || 1);
+            ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
+            
+            const width = chartCanvas.clientWidth;
+            const height = chartCanvas.clientHeight;
+            
+            // Generate initial data
+            let price = 1.4200 + Math.random() * 0.01;
+            for (let i = 0; i < CHART_POINTS; i++) {
+                const change = (Math.random() - 0.48) * 0.002;
+                price += change;
+                price = Math.max(1.38, Math.min(1.46, price));
+                chartData.push({
+                    high: price + Math.random() * 0.002,
+                    low: price - Math.random() * 0.002,
+                    open: price,
+                    close: price + (Math.random() - 0.5) * 0.003
+                });
+            }
+            
+            drawChart();
+            
+            // Update every 3 seconds
+            setInterval(addNewCandle, 3000);
+        }
+
+        function addNewCandle() {
+            const last = chartData[chartData.length - 1];
+            const newPrice = last.close + (Math.random() - 0.48) * 0.002;
+            const clamped = Math.max(1.38, Math.min(1.46, newPrice));
+            chartData.push({
+                high: clamped + Math.random() * 0.002,
+                low: clamped - Math.random() * 0.002,
+                open: last.close,
+                close: clamped
+            });
+            if (chartData.length > CHART_POINTS) chartData.shift();
+            drawChart();
+        }
+
+        function drawChart() {
+            const canvas = document.getElementById('tradingChart');
+            if (!canvas) return;
+            const rect = canvas.getBoundingClientRect();
+            const width = rect.width;
+            const height = rect.height;
+            
+            ctx.clearRect(0, 0, width, height);
+            
+            // Calculate min/max for scaling
+            let min = Infinity, max = -Infinity;
+            chartData.forEach(c => {
+                if (c.low < min) min = c.low;
+                if (c.high > max) max = c.high;
+            });
+            const range = (max - min) * 1.1;
+            const mid = (max + min) / 2;
+            const top = mid + range / 2;
+            const bottom = mid - range / 2;
+            
+            const candleWidth = (width / chartData.length) * 0.6;
+            const halfWidth = candleWidth / 2;
+            
+            // Draw grid lines
+            ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+            ctx.lineWidth = 0.5;
+            for (let i = 0; i < 5; i++) {
+                const y = (height / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(width, y);
+                ctx.stroke();
+            }
+            
+            // Draw candles
+            chartData.forEach((candle, i) => {
+                const x = (i / chartData.length) * width + (width / chartData.length) * 0.2;
+                const highY = height - ((candle.high - bottom) / (top - bottom)) * height;
+                const lowY = height - ((candle.low - bottom) / (top - bottom)) * height;
+                const openY = height - ((candle.open - bottom) / (top - bottom)) * height;
+                const closeY = height - ((candle.close - bottom) / (top - bottom)) * height;
+                
+                const isGreen = candle.close >= candle.open;
+                ctx.strokeStyle = isGreen ? '#00ffcc' : '#CC0000';
+                ctx.fillStyle = isGreen ? 'rgba(0,255,204,0.2)' : 'rgba(204,0,0,0.2)';
+                ctx.lineWidth = 0.8;
+                
+                // Wick
+                ctx.beginPath();
+                ctx.moveTo(x, highY);
+                ctx.lineTo(x, lowY);
+                ctx.stroke();
+                
+                // Body
+                const bodyTop = Math.min(openY, closeY);
+                const bodyBottom = Math.max(openY, closeY);
+                const bodyHeight = Math.max(1, bodyBottom - bodyTop);
+                ctx.fillRect(x - halfWidth, bodyTop, candleWidth, bodyHeight);
+                ctx.strokeRect(x - halfWidth, bodyTop, candleWidth, bodyHeight);
+            });
+        }
+
+        // ===== SIGNAL GENERATOR =====
         function generateSignal() {
             const signals = ['BUY', 'SELL', 'HOLD'];
             const weights = [0.35, 0.35, 0.30];
@@ -926,27 +905,22 @@
 
         function updateSignal() {
             const { signal, confidence } = generateSignal();
-
-            // Update displays
             document.getElementById('signalDisplay').textContent = signal;
             document.getElementById('signalDisplayLarge').textContent = signal;
             document.getElementById('confidenceDisplay').textContent = `Confidence: ${confidence}%`;
             document.getElementById('confidencePercent').textContent = `${confidence}%`;
             document.getElementById('confidenceFill').style.width = `${confidence}%`;
 
-            // Update signal display class
             const display = document.getElementById('signalDisplayLarge');
             display.className = 'signal-display';
-            if (signal === 'BUY') { display.classList.add('buy'); }
-            else if (signal === 'SELL') { display.classList.add('sell'); }
-            else { display.classList.add('hold'); }
+            if (signal === 'BUY') display.classList.add('buy');
+            else if (signal === 'SELL') display.classList.add('sell');
+            else display.classList.add('hold');
 
-            // Live signal badge
             const badge = document.getElementById('liveSignal');
             badge.textContent = signal;
             badge.style.color = signal === 'BUY' ? '#00ffcc' : signal === 'SELL' ? '#CC0000' : '#FFD700';
 
-            // Update stats
             document.getElementById('tradeCount').textContent = Math.floor(Math.random() * 20) + 1;
             document.getElementById('winRate').textContent = `Win Rate: ${60 + Math.floor(Math.random() * 30)}%`;
             const pnl = (Math.random() - 0.4) * 5;
@@ -954,7 +928,6 @@
             document.getElementById('pnlDisplay').style.color = pnl >= 0 ? '#00ffcc' : '#CC0000';
             document.getElementById('pnlSub').textContent = `${Math.floor(Math.random() * 10) + 1} trades`;
 
-            // Update trades table
             const symbols = ['USDCAD', 'EURUSD', 'GBPUSD', 'USDJPY'];
             const types = ['BUY', 'SELL'];
             let html = '';
@@ -988,25 +961,27 @@
             alert('📊 Exporting trades...');
         }
 
-        // ===== THRESHOLD SLIDER =====
-        document.getElementById('thresholdSlider').addEventListener('input', function() {
-            document.getElementById('thresholdValue').textContent = this.value + '%';
-        });
-
         // ===== INIT =====
         document.addEventListener('DOMContentLoaded', function() {
-            // Load saved backend URL
             const saved = localStorage.getItem('backendUrl');
             if (saved) document.getElementById('backendUrl').value = saved;
-
-            // Initial signal
+            
+            document.getElementById('thresholdSlider').addEventListener('input', function() {
+                document.getElementById('thresholdValue').textContent = this.value + '%';
+            });
+            
             updateSignal();
-
-            // Update signal every 10 seconds
             setInterval(updateSignal, 10000);
-
-            // Quantum detail
             document.getElementById('quantumDetail').textContent = 'CHSH S=2.76 · 98.4%';
+            
+            setTimeout(initChart, 100);
+            
+            // Handle resize
+            window.addEventListener('resize', function() {
+                if (chartCanvas) {
+                    initChart();
+                }
+            });
         });
 
         console.log('⚛️ KD QUANTUM TRADING PLATFORM · LOADED');
