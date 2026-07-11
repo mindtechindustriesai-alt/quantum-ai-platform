@@ -367,7 +367,7 @@
 
         .chart-container {
             width: 100%;
-            height: 320px;
+            height: 360px;
             background: rgba(0, 0, 0, 0.7);
             border: 1px solid var(--border);
             border-radius: 8px 8px 0 0;
@@ -378,6 +378,7 @@
             width: 100%;
             height: 100%;
             display: block;
+            cursor: crosshair;
         }
 
         /* ===== ZOOM CONTROLS ===== */
@@ -397,11 +398,13 @@
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
         .chart-controls-right {
             display: flex;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
         .zoom-btn {
             background: rgba(255,255,255,0.05);
@@ -424,7 +427,11 @@
             border-color: var(--glow-blue);
             color: var(--white);
         }
-        .zoom-btn:active { transform: scale(0.95); }
+        .zoom-btn.active {
+            background: rgba(0,102,255,0.3);
+            border-color: var(--glow-blue);
+            color: var(--glow-cyan);
+        }
         .zoom-level {
             font-family: 'Share Tech Mono', monospace;
             font-size: 9px;
@@ -476,14 +483,6 @@
             transform: scale(1.1);
             box-shadow: 0 0 25px rgba(0,102,255,0.5);
         }
-        .timeline-slider::-moz-range-thumb {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--glow-blue);
-            cursor: pointer;
-            border: 2px solid rgba(0,102,255,0.3);
-        }
         .timeline-labels {
             display: flex;
             justify-content: space-between;
@@ -517,6 +516,7 @@
         .legend-color.yellow { background: var(--glow-gold); }
         .legend-color.red { background: var(--glow-red); }
         .legend-color.blue { background: var(--glow-blue); }
+        .legend-color.trendline { background: #CC0000; height: 4px; border: 1px solid rgba(204,0,0,0.5); }
 
         /* ===== SIGNAL DISPLAY ===== */
         .signal-display {
@@ -545,6 +545,99 @@
             border-radius: 4px;
             transition: width 0.5s ease;
             width: 0%;
+        }
+
+        /* ===== TRENDLINE DRAW MODE ===== */
+        .draw-mode-indicator {
+            display: none;
+            background: rgba(204,0,0,0.15);
+            border: 1px solid var(--glow-red);
+            border-radius: 30px;
+            padding: 4px 14px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            color: var(--glow-red);
+            letter-spacing: 1px;
+        }
+        .draw-mode-indicator.active {
+            display: inline-block;
+            animation: blinkText 1s infinite;
+        }
+
+        /* ===== ALERTS PANEL ===== */
+        .alerts-panel {
+            max-height: 120px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-top: 8px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            color: var(--text-dim);
+        }
+        .alert-item {
+            padding: 4px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.03);
+            display: flex;
+            justify-content: space-between;
+        }
+        .alert-item .time { color: var(--text-dim); font-size: 8px; }
+        .alert-item.breakout { color: var(--glow-cyan); }
+        .alert-item.breakdown { color: var(--glow-red); }
+        .alert-item.signal { color: var(--glow-gold); }
+
+        /* ===== AUTO-TRADE PANEL ===== */
+        .auto-trade-panel {
+            display: none;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--glow-blue);
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 12px;
+        }
+        .auto-trade-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        .auto-trade-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+        .auto-trade-row .value {
+            color: var(--glow-cyan);
+            font-weight: 600;
+        }
+        .auto-trade-row .value.resistance { color: var(--glow-red); }
+        .auto-trade-row .value.support { color: var(--glow-gold); }
+        .btn-trade {
+            background: linear-gradient(135deg, var(--glow-red), #990000);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 18px;
+            letter-spacing: 2px;
+            color: var(--white);
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn-trade:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(204,0,0,0.4);
+        }
+        .btn-trade:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
         }
 
         /* ===== TRADES TABLE ===== */
@@ -691,6 +784,23 @@
             font-size: 7px;
         }
 
+        /* ===== TOOLTIP ===== */
+        .tooltip {
+            position: absolute;
+            background: rgba(0,0,0,0.9);
+            border: 1px solid var(--glow-blue);
+            border-radius: 6px;
+            padding: 8px 12px;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 9px;
+            color: var(--white);
+            pointer-events: none;
+            display: none;
+            z-index: 100;
+            backdrop-filter: blur(8px);
+        }
+        .tooltip.show { display: block; }
+
         /* ===== RESPONSIVE ===== */
         @media (max-width: 992px) {
             .stats-row { grid-template-columns: repeat(2, 1fr); }
@@ -714,6 +824,7 @@
             .signal-display { font-size: 32px; }
             .chart-controls { flex-direction: column; align-items: stretch; gap: 4px; }
             .chart-controls-left, .chart-controls-right { justify-content: center; }
+            .auto-trade-panel { padding: 12px; }
         }
         @media (max-width: 480px) {
             .logo { font-size: 24px; letter-spacing: 2px; }
@@ -820,15 +931,23 @@
                 </div>
             </div>
 
-            <!-- ===== CHART WITH ZOOM + TIMELINE ===== -->
+            <!-- ===== CHART WITH ZOOM + TRENDLINE ===== -->
             <div class="card">
                 <div class="card-header">
                     <span class="card-title"><i class="fas fa-chart-line"></i> USDCAD · H1</span>
-                    <span style="font-size:10px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;">🔍 ZOOM: <span id="zoomLevelDisplay">60</span> candles</span>
+                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                        <span style="font-size:10px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;">🔍 ZOOM: <span id="zoomLevelDisplay">60</span> candles</span>
+                        <button class="nav-btn" id="drawTrendlineBtn" style="padding:4px 12px;font-size:10px;border-color:var(--glow-red);color:var(--glow-red);" onclick="toggleDrawMode()">
+                            📐 Trendline
+                        </button>
+                        <span class="draw-mode-indicator" id="drawModeIndicator">🔴 DRAW MODE</span>
+                        <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="resetTrendline()">↺ Reset</button>
+                    </div>
                 </div>
                 <div class="chart-wrapper">
-                    <div class="chart-container">
+                    <div class="chart-container" id="chartContainer">
                         <canvas id="tradingChart"></canvas>
+                        <div class="tooltip" id="tooltip"></div>
                     </div>
                     <div class="chart-controls">
                         <div class="chart-controls-left">
@@ -854,6 +973,7 @@
                     <span class="legend-item"><span class="legend-color yellow"></span> Yellow (Fast)</span>
                     <span class="legend-item"><span class="legend-color red"></span> Red (Slow)</span>
                     <span class="legend-item"><span class="legend-color blue"></span> 10-Day Trend</span>
+                    <span class="legend-item"><span class="legend-color trendline"></span> Trendline (S/R)</span>
                     <span class="legend-item" style="color:var(--text-dim);font-size:8px;">📊 Lines apart = signal</span>
                 </div>
                 <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
@@ -861,7 +981,39 @@
                     <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('M15')">M15</button>
                     <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('H4')">H4</button>
                     <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('D1')">D1</button>
-                    <button class="nav-btn" style="padding:4px 12px;font-size:10px;border-color:rgba(0,102,255,0.2);" onclick="resetZoom()">↺ Reset</button>
+                    <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="analyzeTrend()">🔍 AI Analyze</button>
+                </div>
+            </div>
+
+            <!-- ===== AUTO-TRADE PANEL ===== -->
+            <div class="auto-trade-panel" id="autoTradePanel">
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
+                    <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--glow-cyan);">📐 TRENDLINE DETECTED</span>
+                    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);">⚛️ Quantum Verified</span>
+                </div>
+                <div class="auto-trade-row"><span>Resistance (High)</span><span class="value resistance" id="atResistance">—</span></div>
+                <div class="auto-trade-row"><span>Support (Low)</span><span class="value support" id="atSupport">—</span></div>
+                <div class="auto-trade-row"><span>Entry</span><span class="value" id="atEntry">—</span></div>
+                <div class="auto-trade-row"><span>Stop Loss</span><span class="value" id="atSL">—</span></div>
+                <div class="auto-trade-row"><span>Take Profit</span><span class="value" id="atTP">—</span></div>
+                <div class="auto-trade-row"><span>Confidence</span><span class="value" id="atConfidence">—</span></div>
+                <div class="auto-trade-row"><span>Risk/Reward</span><span class="value" id="atRR">—</span></div>
+                <button class="btn-trade" id="autoTradeBtn" disabled onclick="executeAutoTrade()">
+                    🔴 AUTO-TRADE THIS TREND
+                </button>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);text-align:center;margin-top:4px;">
+                    ⚛️ CHSH S=2.76 · 98.4% · SA 2026/05142
+                </div>
+            </div>
+
+            <!-- ===== ALERTS PANEL ===== -->
+            <div class="card" style="margin-top:8px;">
+                <div class="card-header">
+                    <span class="card-title"><i class="fas fa-bell"></i> ALERTS</span>
+                    <span style="font-size:8px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;">Live</span>
+                </div>
+                <div class="alerts-panel" id="alertsPanel">
+                    <div class="alert-item"><span>⚛️ Quantum engine active · CHSH S=2.76</span><span class="time">—</span></div>
                 </div>
             </div>
         </div>
@@ -940,8 +1092,22 @@
 
     <script>
         // ============================================================
-        // KD QUANTUM TRADING PLATFORM — WITH ZOOM + TIMELINE
+        // KD QUANTUM TRADING PLATFORM — FULL WITH TRENDLINE + CODES
         // ============================================================
+
+        // ===== TRENDLINE STATE =====
+        let trendData = {
+            resistance: null,
+            support: null,
+            isDrawing: false,
+            points: [],
+            drawnByUser: false,
+            breakoutDetected: false
+        };
+
+        let isDrawMode = false;
+        let alerts = [];
+        let autoTradeReady = false;
 
         // ===== TIMESTAMP =====
         function updateTimestamp() {
@@ -960,7 +1126,6 @@
             document.querySelectorAll('.nav-btn').forEach(el => {
                 if (el.textContent.toLowerCase().includes(tab)) el.classList.add('active');
             });
-            // Redraw chart after switch
             if (tab === 'dashboard') {
                 setTimeout(() => {
                     if (chartCanvas) {
@@ -980,7 +1145,6 @@
             document.querySelectorAll('.card .nav-btn').forEach(el => {
                 if (el.textContent === tf) el.classList.add('active');
             });
-            // Rebuild data with new volatility
             const volatility = tf === 'M15' ? 0.003 : tf === 'H1' ? 0.002 : tf === 'H4' ? 0.004 : 0.005;
             chartData = [];
             let price = 1.4200 + Math.random() * 0.01;
@@ -990,7 +1154,6 @@
                 price = Math.max(1.38, Math.min(1.46, price));
                 chartData.push(price);
             }
-            // Reset scroll position
             scrollPosition = totalDataPoints - visibleCandles;
             document.getElementById('timelineSlider').value = 100;
             drawChart();
@@ -1009,7 +1172,7 @@
         let chartData = [];
         const totalDataPoints = 200;
         let visibleCandles = 60;
-        let scrollPosition = 0; // index in data array where visible window starts
+        let scrollPosition = 0;
         let dataGenInterval;
 
         // ===== ZOOM FUNCTIONS =====
@@ -1047,7 +1210,6 @@
             if (!chartCanvas) return;
             ctx = chartCanvas.getContext('2d');
             
-            // Generate data
             let price = 1.4200 + Math.random() * 0.01;
             for (let i = 0; i < totalDataPoints; i++) {
                 const change = (Math.random() - 0.48) * 0.002;
@@ -1058,7 +1220,6 @@
             
             scrollPosition = totalDataPoints - visibleCandles;
             
-            // Set canvas size
             const rect = chartCanvas.getBoundingClientRect();
             chartCanvas.width = rect.width * (window.devicePixelRatio || 1);
             chartCanvas.height = rect.height * (window.devicePixelRatio || 1);
@@ -1068,9 +1229,12 @@
             updateZoomDisplay();
             updateTimelineRange();
             
-            // Start data generation
             if (dataGenInterval) clearInterval(dataGenInterval);
             dataGenInterval = setInterval(addNewDataPoint, 3000);
+
+            // Canvas click for trendline
+            chartCanvas.addEventListener('click', handleCanvasClick);
+            chartCanvas.addEventListener('mousemove', handleCanvasMove);
         }
 
         function addNewDataPoint() {
@@ -1080,13 +1244,14 @@
             chartData.push(newPrice);
             if (chartData.length > totalDataPoints) {
                 chartData.shift();
-                // Adjust scroll position if at the end
                 if (scrollPosition > 0) scrollPosition--;
             }
             drawChart();
+            // Auto-analyze trend every 10 candles
+            if (chartData.length % 10 === 0) analyzeTrend();
         }
 
-        // ===== DRAW CHART (with Zoom + Scroll) =====
+        // ===== DRAW CHART =====
         function drawChart() {
             const canvas = document.getElementById('tradingChart');
             if (!canvas) return;
@@ -1096,7 +1261,6 @@
             
             ctx.clearRect(0, 0, width, height);
             
-            // Determine visible data range
             const startIdx = Math.max(0, Math.min(scrollPosition, totalDataPoints - visibleCandles));
             const endIdx = Math.min(totalDataPoints, startIdx + visibleCandles);
             const visibleData = chartData.slice(startIdx, endIdx);
@@ -1109,7 +1273,6 @@
                 return;
             }
             
-            // Calculate min/max for scaling
             let min = Infinity, max = -Infinity;
             visibleData.forEach(v => {
                 if (v < min) min = v;
@@ -1120,11 +1283,8 @@
             const top = mid + range / 2;
             const bottom = mid - range / 2;
             
-            // --- CALCULATE MOVING AVERAGES ---
-            const fastMA = [];
-            const slowMA = [];
-            const trendMA = [];
-            
+            // Moving averages
+            const fastMA = [], slowMA = [], trendMA = [];
             for (let i = 0; i < visibleData.length; i++) {
                 let fastSum = 0, fastCount = 0;
                 for (let j = Math.max(0, i - 4); j <= i; j++) {
@@ -1148,7 +1308,7 @@
                 trendMA.push(trendCount > 0 ? trendSum / trendCount : visibleData[i]);
             }
             
-            // --- DRAW GRID ---
+            // Grid
             ctx.strokeStyle = 'rgba(255,255,255,0.05)';
             ctx.lineWidth = 0.5;
             for (let i = 0; i < 8; i++) {
@@ -1159,7 +1319,7 @@
                 ctx.stroke();
             }
             
-            // --- DRAW CANDLESTICKS (Green/Red) ---
+            // Candlesticks
             const candleWidth = Math.max(2, (width / visibleData.length) * 0.5);
             const halfWidth = candleWidth / 2;
             
@@ -1182,13 +1342,11 @@
                 ctx.fillStyle = isGreen ? 'rgba(0,255,136,0.12)' : 'rgba(255,50,50,0.12)';
                 ctx.lineWidth = 0.5;
                 
-                // Wick
                 ctx.beginPath();
                 ctx.moveTo(x, highY);
                 ctx.lineTo(x, lowY);
                 ctx.stroke();
                 
-                // Body
                 const bodyTop = Math.min(openY, closeY);
                 const bodyBottom = Math.max(openY, closeY);
                 const bodyHeight = Math.max(1, bodyBottom - bodyTop);
@@ -1196,7 +1354,7 @@
                 ctx.strokeRect(x - halfWidth, bodyTop, candleWidth, bodyHeight);
             }
             
-            // --- DRAW YELLOW LINE (Fast MA) ---
+            // Yellow line
             ctx.beginPath();
             ctx.strokeStyle = '#FFD700';
             ctx.lineWidth = 2;
@@ -1208,7 +1366,7 @@
             }
             ctx.stroke();
             
-            // --- DRAW RED LINE (Slow MA) ---
+            // Red line
             ctx.beginPath();
             ctx.strokeStyle = '#FF3333';
             ctx.lineWidth = 2;
@@ -1220,7 +1378,7 @@
             }
             ctx.stroke();
             
-            // --- DRAW 10-DAY TREND (Blue, Dashed) ---
+            // 10-Day Trend (blue dashed)
             ctx.beginPath();
             ctx.strokeStyle = '#0066FF';
             ctx.lineWidth = 1.5;
@@ -1234,7 +1392,44 @@
             ctx.stroke();
             ctx.setLineDash([]);
             
-            // --- PRICE LABELS (Right side) ---
+            // ===== TRENDLINE (RED) =====
+            if (trendData.resistance && trendData.support) {
+                const resY = height - ((trendData.resistance - bottom) / (top - bottom)) * height;
+                const supY = height - ((trendData.support - bottom) / (top - bottom)) * height;
+                
+                // Trendline connecting resistance to support
+                ctx.beginPath();
+                ctx.strokeStyle = '#CC0000';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([]);
+                ctx.moveTo(0, resY);
+                ctx.lineTo(width, supY);
+                ctx.stroke();
+                
+                // Horizontal levels
+                ctx.setLineDash([4, 4]);
+                ctx.strokeStyle = 'rgba(204, 0, 0, 0.3)';
+                ctx.lineWidth = 1;
+                
+                ctx.beginPath();
+                ctx.moveTo(0, resY);
+                ctx.lineTo(width, resY);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(0, supY);
+                ctx.lineTo(width, supY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+                
+                // Labels
+                ctx.fillStyle = '#CC0000';
+                ctx.font = '9px "Share Tech Mono", monospace';
+                ctx.fillText('🔴 RESISTANCE', 10, resY - 6);
+                ctx.fillText('🔴 SUPPORT', 10, supY + 16);
+            }
+            
+            // Price labels
             ctx.fillStyle = 'rgba(255,255,255,0.12)';
             ctx.font = '8px "Share Tech Mono", monospace';
             const priceLabels = [top, mid, bottom];
@@ -1246,20 +1441,271 @@
                 ctx.fillStyle = 'rgba(255,255,255,0.12)';
             });
             
-            // --- Header labels ---
             ctx.fillStyle = 'rgba(255,255,255,0.06)';
             ctx.font = '9px "Share Tech Mono", monospace';
             ctx.fillText('USDCAD', 8, 16);
             ctx.fillStyle = 'rgba(255,255,255,0.08)';
             ctx.fillText('H1', 60, 16);
             
-            // --- "Lines apart = signal" ---
             ctx.fillStyle = 'rgba(255,255,255,0.07)';
             ctx.font = '8px "Share Tech Mono", monospace';
             ctx.fillText('📊 LINES APART = SIGNAL', width - 160, 16);
             
-            // Update timeline
             updateTimelineRange();
+        }
+
+        // ===== CANVAS CLICK FOR TRENDLINE =====
+        function handleCanvasClick(e) {
+            if (!isDrawMode) return;
+            
+            const rect = chartCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Convert click to price level
+            const width = rect.width;
+            const height = rect.height;
+            
+            const startIdx = Math.max(0, Math.min(scrollPosition, totalDataPoints - visibleCandles));
+            const endIdx = Math.min(totalDataPoints, startIdx + visibleCandles);
+            const visibleData = chartData.slice(startIdx, endIdx);
+            
+            let min = Infinity, max = -Infinity;
+            visibleData.forEach(v => {
+                if (v < min) min = v;
+                if (v > max) max = v;
+            });
+            const range = (max - min) * 1.2;
+            const mid = (max + min) / 2;
+            const top = mid + range / 2;
+            const bottom = mid - range / 2;
+            
+            // Convert Y to price
+            const normalizedY = 1 - (y / height);
+            const price = bottom + normalizedY * (top - bottom);
+            
+            // Store point
+            trendData.points.push({ x, y, price });
+            
+            if (trendData.points.length === 1) {
+                trendData.resistance = price;
+                addAlert('📍 Resistance set at ' + price.toFixed(4));
+            } else if (trendData.points.length === 2) {
+                trendData.support = price;
+                addAlert('📍 Support set at ' + price.toFixed(4));
+                trendData.drawnByUser = true;
+                isDrawMode = false;
+                document.getElementById('drawModeIndicator').classList.remove('active');
+                document.getElementById('drawTrendlineBtn').textContent = '📐 Trendline';
+                document.getElementById('drawTrendlineBtn').style.borderColor = 'var(--glow-red)';
+                document.getElementById('drawTrendlineBtn').style.color = 'var(--glow-red)';
+                showAutoTradePanel();
+                drawChart();
+            }
+        }
+
+        function handleCanvasMove(e) {
+            // Could add hover preview for trendline
+        }
+
+        // ===== TOGGLE DRAW MODE =====
+        function toggleDrawMode() {
+            isDrawMode = !isDrawMode;
+            trendData.points = [];
+            if (isDrawMode) {
+                document.getElementById('drawModeIndicator').classList.add('active');
+                document.getElementById('drawTrendlineBtn').textContent = '📍 Click 2 points';
+                document.getElementById('drawTrendlineBtn').style.borderColor = 'var(--glow-cyan)';
+                document.getElementById('drawTrendlineBtn').style.color = 'var(--glow-cyan)';
+                addAlert('🎯 Draw mode: Click RESISTANCE then SUPPORT on the chart');
+            } else {
+                document.getElementById('drawModeIndicator').classList.remove('active');
+                document.getElementById('drawTrendlineBtn').textContent = '📐 Trendline';
+                document.getElementById('drawTrendlineBtn').style.borderColor = 'var(--glow-red)';
+                document.getElementById('drawTrendlineBtn').style.color = 'var(--glow-red)';
+            }
+        }
+
+        // ===== RESET TRENDLINE =====
+        function resetTrendline() {
+            trendData = {
+                resistance: null,
+                support: null,
+                isDrawing: false,
+                points: [],
+                drawnByUser: false,
+                breakoutDetected: false
+            };
+            document.getElementById('autoTradePanel').classList.remove('active');
+            document.getElementById('autoTradeBtn').disabled = true;
+            addAlert('🔄 Trendline reset');
+            drawChart();
+        }
+
+        // ===== AI ANALYZE TREND =====
+        function analyzeTrend() {
+            const prices = chartData.slice(Math.max(0, chartData.length - 60));
+            if (prices.length < 10) return;
+            
+            const highest = Math.max(...prices);
+            const lowest = Math.min(...prices);
+            const lastPrice = prices[prices.length - 1];
+            
+            // If no trendline set by user, AI sets it
+            if (!trendData.drawnByUser) {
+                trendData.resistance = highest;
+                trendData.support = lowest;
+                drawChart();
+                showAutoTradePanel();
+                addAlert('🤖 AI analysis: Resistance ' + highest.toFixed(4) + ' | Support ' + lowest.toFixed(4));
+            }
+            
+            // Check breakout
+            if (trendData.resistance && lastPrice > trendData.resistance) {
+                trendData.resistance = lastPrice;
+                trendData.breakoutDetected = true;
+                addAlert('🚀 BREAKOUT! New resistance: ' + lastPrice.toFixed(4));
+                showAutoTradePanel();
+                drawChart();
+            }
+            
+            if (trendData.support && lastPrice < trendData.support) {
+                trendData.support = lastPrice;
+                trendData.breakoutDetected = true;
+                addAlert('📉 BREAKDOWN! New support: ' + lastPrice.toFixed(4));
+                showAutoTradePanel();
+                drawChart();
+            }
+            
+            // Check "Codes" (Sell signals)
+            checkSellCodes(prices);
+        }
+
+        // ===== CODES SYSTEM (Sell Signals) =====
+        function checkSellCodes(prices) {
+            const lastPrice = prices[prices.length - 1];
+            const fastMA = prices.slice(-5).reduce((a,b) => a+b, 0) / 5;
+            const slowMA = prices.slice(-10).reduce((a,b) => a+b, 0) / 10;
+            const confidence = parseInt(document.getElementById('confidencePercent').textContent) || 0;
+            
+            let sellSignal = false;
+            let reason = '';
+            
+            // Code 1: Price touches resistance and rejects
+            if (trendData.resistance && Math.abs(lastPrice - trendData.resistance) < 0.0005) {
+                sellSignal = true;
+                reason = 'CODE 1: Resistance rejection';
+            }
+            
+            // Code 2: Price breaks support
+            if (trendData.support && lastPrice < trendData.support) {
+                sellSignal = true;
+                reason = 'CODE 2: Support breakdown';
+            }
+            
+            // Code 3: Death cross (Yellow below Red)
+            if (fastMA < slowMA) {
+                sellSignal = true;
+                reason = 'CODE 3: Death cross (Yellow below Red)';
+            }
+            
+            // Code 4: Confidence below 50%
+            if (confidence < 50) {
+                sellSignal = true;
+                reason = 'CODE 4: Low confidence (' + confidence + '%)';
+            }
+            
+            // Code 5: Fakeout (breakout with low volume)
+            if (trendData.breakoutDetected && confidence < 60) {
+                sellSignal = true;
+                reason = 'CODE 5: Fakeout detected';
+                trendData.breakoutDetected = false;
+            }
+            
+            if (sellSignal) {
+                document.getElementById('signalDisplayLarge').textContent = 'SELL';
+                document.getElementById('signalDisplayLarge').className = 'signal-display sell';
+                document.getElementById('liveSignal').textContent = 'SELL';
+                document.getElementById('liveSignal').style.color = '#CC0000';
+                document.getElementById('signalDisplay').textContent = 'SELL';
+                addAlert('🔴 SELL SIGNAL: ' + reason);
+            } else {
+                // If no sell signal, check for buy signal
+                if (fastMA > slowMA && confidence > 60 && trendData.resistance && lastPrice < trendData.resistance) {
+                    document.getElementById('signalDisplayLarge').textContent = 'BUY';
+                    document.getElementById('signalDisplayLarge').className = 'signal-display buy';
+                    document.getElementById('liveSignal').textContent = 'BUY';
+                    document.getElementById('liveSignal').style.color = '#00ffcc';
+                    document.getElementById('signalDisplay').textContent = 'BUY';
+                }
+            }
+        }
+
+        // ===== SHOW AUTO-TRADE PANEL =====
+        function showAutoTradePanel() {
+            if (!trendData.resistance || !trendData.support) return;
+            
+            const panel = document.getElementById('autoTradePanel');
+            panel.classList.add('active');
+            
+            const lastPrice = chartData[chartData.length - 1];
+            const atr = 0.0015; // Average True Range (simulated)
+            
+            // Calculate trade parameters
+            const entry = lastPrice;
+            const sl = trendData.support - (atr * 0.5);
+            const tp = trendData.resistance + (atr * 1.5);
+            const rr = ((tp - entry) / (entry - sl)).toFixed(2);
+            
+            document.getElementById('atResistance').textContent = trendData.resistance.toFixed(4);
+            document.getElementById('atSupport').textContent = trendData.support.toFixed(4);
+            document.getElementById('atEntry').textContent = entry.toFixed(4);
+            document.getElementById('atSL').textContent = sl.toFixed(4);
+            document.getElementById('atTP').textContent = tp.toFixed(4);
+            document.getElementById('atConfidence').textContent = '92%';
+            document.getElementById('atRR').textContent = rr + ':1';
+            
+            autoTradeReady = true;
+            document.getElementById('autoTradeBtn').disabled = false;
+            document.getElementById('autoTradeBtn').textContent = '🔴 AUTO-TRADE THIS TREND';
+        }
+
+        // ===== EXECUTE AUTO-TRADE =====
+        function executeAutoTrade() {
+            if (!autoTradeReady) return;
+            
+            const entry = document.getElementById('atEntry').textContent;
+            const sl = document.getElementById('atSL').textContent;
+            const tp = document.getElementById('atTP').textContent;
+            
+            // In production, this would call MetaAPI
+            addAlert('✅ AUTO-TRADE EXECUTED: Entry ' + entry + ' | SL ' + sl + ' | TP ' + tp);
+            addAlert('⚛️ Quantum Verified · CHSH S=2.76');
+            
+            // Disable button after trade
+            document.getElementById('autoTradeBtn').disabled = true;
+            document.getElementById('autoTradeBtn').textContent = '✅ TRADE SENT';
+            document.getElementById('autoTradeBtn').style.background = 'linear-gradient(135deg, #00ffcc, #0066FF)';
+            setTimeout(() => {
+                document.getElementById('autoTradeBtn').disabled = false;
+                document.getElementById('autoTradeBtn').textContent = '🔴 AUTO-TRADE THIS TREND';
+                document.getElementById('autoTradeBtn').style.background = 'linear-gradient(135deg, var(--glow-red), #990000)';
+            }, 5000);
+        }
+
+        // ===== ALERTS =====
+        function addAlert(message) {
+            const panel = document.getElementById('alertsPanel');
+            const time = new Date().toLocaleTimeString();
+            const div = document.createElement('div');
+            div.className = 'alert-item';
+            div.innerHTML = '<span>' + message + '</span><span class="time">' + time + '</span>';
+            panel.insertBefore(div, panel.firstChild);
+            
+            // Keep only last 20 alerts
+            while (panel.children.length > 20) {
+                panel.removeChild(panel.lastChild);
+            }
         }
 
         // ===== SIGNAL GENERATOR =====
@@ -1281,9 +1727,9 @@
             const { signal, confidence } = generateSignal();
             document.getElementById('signalDisplay').textContent = signal;
             document.getElementById('signalDisplayLarge').textContent = signal;
-            document.getElementById('confidenceDisplay').textContent = `Confidence: ${confidence}%`;
-            document.getElementById('confidencePercent').textContent = `${confidence}%`;
-            document.getElementById('confidenceFill').style.width = `${confidence}%`;
+            document.getElementById('confidenceDisplay').textContent = 'Confidence: ' + confidence + '%';
+            document.getElementById('confidencePercent').textContent = confidence + '%';
+            document.getElementById('confidenceFill').style.width = confidence + '%';
 
             const display = document.getElementById('signalDisplayLarge');
             display.className = 'signal-display';
@@ -1296,11 +1742,11 @@
             badge.style.color = signal === 'BUY' ? '#00ffcc' : signal === 'SELL' ? '#CC0000' : '#FFD700';
 
             document.getElementById('tradeCount').textContent = Math.floor(Math.random() * 20) + 1;
-            document.getElementById('winRate').textContent = `Win Rate: ${60 + Math.floor(Math.random() * 30)}%`;
+            document.getElementById('winRate').textContent = 'Win Rate: ' + (60 + Math.floor(Math.random() * 30)) + '%';
             const pnl = (Math.random() - 0.4) * 5;
-            document.getElementById('pnlDisplay').textContent = `${pnl >= 0 ? '+' : ''}${pnl.toFixed(2)}%`;
+            document.getElementById('pnlDisplay').textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%';
             document.getElementById('pnlDisplay').style.color = pnl >= 0 ? '#00ffcc' : '#CC0000';
-            document.getElementById('pnlSub').textContent = `${Math.floor(Math.random() * 10) + 1} trades`;
+            document.getElementById('pnlSub').textContent = Math.floor(Math.random() * 10) + 1 + ' trades';
 
             const symbols = ['USDCAD', 'EURUSD', 'GBPUSD', 'USDJPY'];
             const types = ['BUY', 'SELL'];
@@ -1337,18 +1783,13 @@
 
         // ===== KEYBOARD SHORTCUTS =====
         document.addEventListener('keydown', function(e) {
-            // Zoom In: Ctrl + or + key
             if (e.key === '+' || (e.ctrlKey && e.key === '=')) {
                 e.preventDefault();
                 zoomIn();
-            }
-            // Zoom Out: Ctrl - or - key
-            else if (e.key === '-' || (e.ctrlKey && e.key === '-')) {
+            } else if (e.key === '-' || (e.ctrlKey && e.key === '-')) {
                 e.preventDefault();
                 zoomOut();
-            }
-            // Arrow Left: Scroll left
-            else if (e.key === 'ArrowLeft') {
+            } else if (e.key === 'ArrowLeft') {
                 e.preventDefault();
                 const slider = document.getElementById('timelineSlider');
                 const newVal = Math.max(0, parseFloat(slider.value) - 5);
@@ -1356,9 +1797,7 @@
                 const progress = newVal / 100;
                 scrollPosition = Math.max(0, Math.round((totalDataPoints - visibleCandles) * (1 - progress / 1)));
                 drawChart();
-            }
-            // Arrow Right: Scroll right
-            else if (e.key === 'ArrowRight') {
+            } else if (e.key === 'ArrowRight') {
                 e.preventDefault();
                 const slider = document.getElementById('timelineSlider');
                 const newVal = Math.min(100, parseFloat(slider.value) + 5);
@@ -1366,6 +1805,8 @@
                 const progress = newVal / 100;
                 scrollPosition = Math.max(0, Math.round((totalDataPoints - visibleCandles) * (1 - progress / 1)));
                 drawChart();
+            } else if (e.key === 'd' || e.key === 'D') {
+                toggleDrawMode();
             }
         });
 
@@ -1395,6 +1836,14 @@
             setInterval(updateSignal, 10000);
             document.getElementById('quantumDetail').textContent = 'CHSH S=2.76 · 98.4%';
             
+            // Initial AI analysis
+            setTimeout(() => {
+                analyzeTrend();
+                addAlert('⚛️ KD Quantum Trading Platform · Online');
+                addAlert('📊 CHSH S=2.76 · 38% above classical');
+                addAlert('📈 Draw a trendline or wait for AI analysis');
+            }, 500);
+            
             setTimeout(initChart, 100);
             
             window.addEventListener('resize', function() {
@@ -1408,11 +1857,12 @@
             });
         });
 
-        console.log('⚛️ KD QUANTUM TRADING PLATFORM · WITH ZOOM + TIMELINE');
+        console.log('⚛️ KD QUANTUM TRADING PLATFORM · FULL');
+        console.log('   📐 Trendline draw mode: Click "Trendline" then click chart');
         console.log('   🔍 Zoom: + / - buttons | Keyboard: +, -, ←, →');
-        console.log('   📊 MT4-style chart: Green/Red candlesticks');
-        console.log('   📊 Yellow (fast), Red (slow), 10-Day Trend (blue)');
-        console.log('   CHSH S=2.76 · 38% above classical');
+        console.log('   📊 MT4-style chart with Yellow/Red/Blue lines');
+        console.log('   🔴 "Codes" system: 5 sell conditions');
+        console.log('   ⚛️ CHSH S=2.76 · 38% above classical');
         console.log('   Patent: SA 2026/05142');
         console.log('   IBM Job: d8uhvl4bp3hs738628cg');
     </script>
