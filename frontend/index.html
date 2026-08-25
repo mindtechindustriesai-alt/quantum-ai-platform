@@ -453,9 +453,9 @@
 
     <script>
         // ============================================================
-        // CONFIGURATION — CHANGE THIS TO YOUR BACKEND URL
+        // CONFIGURATION — CORRECT BACKEND URL
         // ============================================================
-        const BACKEND_URL = 'https://quantum-ai-backend.onrender.com'; // <-- CHANGE THIS
+        const BACKEND_URL = 'https://quantum-ai-platform-backend.onrender.com';
 
         // ============================================================
         // PARTICLES
@@ -470,7 +470,7 @@
                         opacity: { value: 0.2, random: true },
                         size: { value: 2.5, random: true },
                         line_linked: { enable: true, distance: 150, color: '#00C4B4', opacity: 0.06,
-                        width: 0.8 },
+                            width: 0.8 },
                         move: { enable: true, speed: 0.7, direction: 'none', random: true }
                     },
                     interactivity: {
@@ -481,7 +481,7 @@
         });
 
         // ============================================================
-        // LOGIN LOGIC — FIXED WITH BACKEND_URL
+        // LOGIN LOGIC — FIXED WITH CORRECT BACKEND_URL
         // ============================================================
         (function() {
             'use strict';
@@ -525,7 +525,7 @@
                 setLoading(true);
 
                 try {
-                    // === FIXED: Using BACKEND_URL variable ===
+                    // === CORRECT BACKEND URL ===
                     const response = await fetch(`${BACKEND_URL}/login`, {
                         method: 'POST',
                         headers: {
@@ -556,7 +556,6 @@
                     }
 
                 } catch (error) {
-                    // === Better error message ===
                     if (error.message === 'Failed to fetch') {
                         showMessage('❌ Cannot reach backend. Please check if the server is running.', 'error');
                     } else {
