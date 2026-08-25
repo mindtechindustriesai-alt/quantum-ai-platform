@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>KD Quantum Trading — Login</title>
+    <title>KD Quantum Trading — Dashboard</title>
 
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
     <style>
         /* ============================================================
-                   RESET & BASE
-                   ============================================================ */
+           RESET & BASE
+           ============================================================ */
         *,
         *::before,
         *::after {
@@ -23,223 +22,449 @@
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             background: #0a0d1a;
+            color: #e8edf5;
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
             padding: 1.5rem;
-            margin: 0;
-            background-image:
-                radial-gradient(ellipse at 20% 50%, rgba(0, 200, 255, 0.06) 0%, transparent 60%),
-                radial-gradient(ellipse at 80% 50%, rgba(100, 0, 255, 0.06) 0%, transparent 60%);
         }
 
         /* ============================================================
-                   LOGIN CARD
-                   ============================================================ */
-        .login-card {
-            width: 100%;
-            max-width: 420px;
-            background: rgba(14, 18, 34, 0.92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 200, 255, 0.12);
-            border-radius: 24px;
-            padding: 2.5rem 2rem 2rem;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 200, 255, 0.05) inset;
-            transition: border-color 0.3s ease;
-        }
-
-        .login-card:hover {
-            border-color: rgba(0, 200, 255, 0.20);
-        }
-
-        /* ============================================================
-                   QUANTUM BADGE
-                   ============================================================ */
-        .quantum-badge {
+           TOP BAR
+           ============================================================ */
+        .topbar {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            background: rgba(0, 200, 255, 0.06);
-            border: 1px solid rgba(0, 200, 255, 0.10);
-            border-radius: 100px;
-            padding: 0.4rem 1rem 0.4rem 0.6rem;
-            margin: 0 auto 1.5rem;
-            width: fit-content;
-            font-size: 0.7rem;
-            font-weight: 600;
-            letter-spacing: 0.03em;
-            color: #7ad0ff;
-            text-transform: uppercase;
+            justify-content: space-between;
+            padding: 0.75rem 1.5rem;
+            background: rgba(14, 18, 34, 0.8);
+            border: 1px solid rgba(0, 200, 255, 0.08);
+            border-radius: 16px;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 0.75rem;
         }
 
-        .quantum-badge .icon {
-            font-size: 1rem;
-            line-height: 1;
+        .topbar .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
-        /* ============================================================
-                   LOGO / TITLE
-                   ============================================================ */
-        .logo {
-            text-align: center;
-            margin-bottom: 0.25rem;
+        .topbar .brand .icon {
+            font-size: 1.4rem;
         }
 
-        .logo .main {
-            font-size: 1.8rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, #ffffff 0%, #94d0ff 100%);
+        .topbar .brand .name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #94d0ff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            letter-spacing: -0.02em;
         }
 
-        .logo .sub {
-            font-size: 0.75rem;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.35);
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            margin-top: 0.1rem;
-        }
-
-        .logo .patent {
+        .topbar .badge {
             font-size: 0.6rem;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.20);
-            letter-spacing: 0.05em;
-            margin-top: 0.25rem;
+            font-weight: 600;
+            color: #7ad0ff;
+            background: rgba(0, 200, 255, 0.06);
+            border: 1px solid rgba(0, 200, 255, 0.08);
+            border-radius: 100px;
+            padding: 0.2rem 0.8rem;
+            letter-spacing: 0.03em;
+        }
+
+        .topbar .user-section {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .topbar .user-section .username {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .topbar .user-section .logout-btn {
+            background: rgba(255, 50, 50, 0.08);
+            border: 1px solid rgba(255, 50, 50, 0.10);
+            border-radius: 8px;
+            padding: 0.4rem 1rem;
+            color: #ff6b6b;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .topbar .user-section .logout-btn:hover {
+            background: rgba(255, 50, 50, 0.15);
         }
 
         /* ============================================================
-                   FORM
-                   ============================================================ */
-        .login-form {
-            margin-top: 1.75rem;
+           GRID LAYOUT
+           ============================================================ */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 1.5rem;
         }
 
-        .form-group {
-            margin-bottom: 1.25rem;
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
-        .form-group label {
-            display: block;
-            font-size: 0.75rem;
+        /* ============================================================
+           MAIN CHART AREA
+           ============================================================ */
+        .chart-panel {
+            background: rgba(14, 18, 34, 0.8);
+            border: 1px solid rgba(0, 200, 255, 0.06);
+            border-radius: 16px;
+            padding: 1.5rem;
+            min-height: 500px;
+        }
+
+        .chart-panel .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .chart-panel .header .title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.03em;
+        }
+
+        .chart-panel .header .symbol-selector {
+            display: flex;
+            gap: 0.4rem;
+            flex-wrap: wrap;
+        }
+
+        .chart-panel .header .symbol-selector button {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 6px;
+            padding: 0.25rem 0.75rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .chart-panel .header .symbol-selector button:hover {
+            background: rgba(0, 200, 255, 0.06);
+            border-color: rgba(0, 200, 255, 0.15);
+            color: #ffffff;
+        }
+
+        .chart-panel .header .symbol-selector button.active {
+            background: rgba(0, 200, 255, 0.10);
+            border-color: rgba(0, 200, 255, 0.20);
+            color: #7ad0ff;
+        }
+
+        /* Chart placeholder */
+        .chart-container {
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .chart-container .placeholder-text {
+            text-align: center;
+        }
+
+        .chart-container .placeholder-text .big {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* ============================================================
+           SIGNAL PANEL
+           ============================================================ */
+        .signal-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .signal-card {
+            background: rgba(14, 18, 34, 0.8);
+            border: 1px solid rgba(0, 200, 255, 0.06);
+            border-radius: 16px;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .signal-card .label {
+            font-size: 0.65rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.06em;
-            color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 0.4rem;
+            color: rgba(255, 255, 255, 0.3);
+            margin-bottom: 0.25rem;
         }
 
-        .form-group input {
-            width: 100%;
-            padding: 0.8rem 1rem;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 12px;
-            font-size: 0.95rem;
-            font-family: 'Inter', sans-serif;
-            color: #ffffff;
-            transition: border-color 0.25s ease, background 0.25s ease;
-            outline: none;
+        .signal-card .value {
+            font-size: 1.6rem;
+            font-weight: 800;
         }
 
-        .form-group input::placeholder {
-            color: rgba(255, 255, 255, 0.20);
-            font-weight: 400;
-        }
-
-        .form-group input:focus {
-            border-color: rgba(0, 200, 255, 0.5);
-            background: rgba(255, 255, 255, 0.06);
-            box-shadow: 0 0 0 3px rgba(0, 200, 255, 0.06);
-        }
-
-        .form-group input:-webkit-autofill {
-            -webkit-box-shadow: 0 0 0 1000px rgba(14, 18, 34, 0.95) inset !important;
-            -webkit-text-fill-color: #ffffff !important;
-        }
-
-        /* ============================================================
-                   BUTTON
-                   ============================================================ */
-        .login-btn {
-            width: 100%;
-            padding: 0.9rem;
-            margin-top: 0.5rem;
-            background: linear-gradient(135deg, #0088ff, #7000ff);
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 700;
-            font-family: 'Inter', sans-serif;
-            color: #ffffff;
-            cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.25s ease;
-            box-shadow: 0 4px 20px rgba(0, 136, 255, 0.25);
-            letter-spacing: 0.01em;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 8px 30px rgba(0, 136, 255, 0.35);
-        }
-
-        .login-btn:active {
-            transform: scale(0.98);
-        }
-
-        .login-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* ============================================================
-                   ERROR / STATUS MESSAGES
-                   ============================================================ */
-        .message {
-            margin-top: 1rem;
-            padding: 0.75rem 1rem;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            font-weight: 500;
-            text-align: center;
-            display: none;
-        }
-
-        .message.error {
-            display: block;
-            background: rgba(255, 50, 50, 0.10);
-            border: 1px solid rgba(255, 50, 50, 0.15);
-            color: #ff6b6b;
-        }
-
-        .message.success {
-            display: block;
-            background: rgba(0, 200, 80, 0.08);
-            border: 1px solid rgba(0, 200, 80, 0.12);
+        .signal-card .value.buy {
             color: #5cffa0;
         }
 
+        .signal-card .value.sell {
+            color: #ff6b6b;
+        }
+
+        .signal-card .value.hold {
+            color: #ffd93d;
+        }
+
+        .signal-card .sub {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 0.1rem;
+        }
+
+        .signal-card .quantum-badge {
+            display: inline-block;
+            font-size: 0.6rem;
+            font-weight: 600;
+            color: #7ad0ff;
+            background: rgba(0, 200, 255, 0.05);
+            border: 1px solid rgba(0, 200, 255, 0.06);
+            border-radius: 100px;
+            padding: 0.15rem 0.6rem;
+            margin-top: 0.4rem;
+        }
+
         /* ============================================================
-                   LOADING SPINNER (inline inside button)
-                   ============================================================ */
+           ACCOUNT SELECTOR
+           ============================================================ */
+        .account-selector {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .account-selector button {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.7rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .account-selector button:hover {
+            background: rgba(0, 200, 255, 0.04);
+            border-color: rgba(0, 200, 255, 0.10);
+            color: #ffffff;
+        }
+
+        .account-selector button.active {
+            background: rgba(0, 200, 255, 0.08);
+            border-color: rgba(0, 200, 255, 0.15);
+            color: #7ad0ff;
+        }
+
+        /* ============================================================
+           TRADE FORM
+           ============================================================ */
+        .trade-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .trade-form .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .trade-form label {
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: rgba(255, 255, 255, 0.3);
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .trade-form input,
+        .trade-form select {
+            width: 100%;
+            padding: 0.5rem 0.6rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            outline: none;
+        }
+
+        .trade-form input:focus,
+        .trade-form select:focus {
+            border-color: rgba(0, 200, 255, 0.25);
+        }
+
+        .trade-form input::placeholder {
+            color: rgba(255, 255, 255, 0.15);
+        }
+
+        .trade-form select option {
+            background: #0a0d1a;
+            color: #ffffff;
+        }
+
+        .trade-buttons {
+            display: flex;
+            gap: 0.75rem;
+            grid-column: 1 / -1;
+        }
+
+        .trade-buttons button {
+            flex: 1;
+            padding: 0.6rem;
+            border: none;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .trade-buttons .btn-buy {
+            background: linear-gradient(135deg, #00c853, #00e676);
+            color: #001a0a;
+        }
+
+        .trade-buttons .btn-buy:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(0, 200, 80, 0.25);
+        }
+
+        .trade-buttons .btn-sell {
+            background: linear-gradient(135deg, #ff1744, #ff5252);
+            color: #1a0000;
+        }
+
+        .trade-buttons .btn-sell:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(255, 50, 50, 0.25);
+        }
+
+        /* ============================================================
+           STATUS MESSAGE
+           ============================================================ */
+        .trade-status {
+            margin-top: 0.75rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 8px;
+            font-size: 0.75rem;
+            display: none;
+            grid-column: 1 / -1;
+        }
+
+        .trade-status.success {
+            display: block;
+            background: rgba(0, 200, 80, 0.06);
+            border: 1px solid rgba(0, 200, 80, 0.08);
+            color: #5cffa0;
+        }
+
+        .trade-status.error {
+            display: block;
+            background: rgba(255, 50, 50, 0.06);
+            border: 1px solid rgba(255, 50, 50, 0.08);
+            color: #ff6b6b;
+        }
+
+        /* ============================================================
+           MARKET DATA TABLE
+           ============================================================ */
+        .market-table {
+            width: 100%;
+            font-size: 0.7rem;
+            border-collapse: collapse;
+            margin-top: 0.5rem;
+        }
+
+        .market-table th {
+            text-align: left;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.25);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            padding: 0.3rem 0.4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .market-table td {
+            padding: 0.3rem 0.4rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            color: rgba(255, 255, 255, 0.7);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .market-table .symbol-name {
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .market-table .bid {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .market-table .ask {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .market-table .spread {
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 0.6rem;
+        }
+
+        /* ============================================================
+           LOADING SPINNER
+           ============================================================ */
         .spinner {
             display: inline-block;
-            width: 18px;
-            height: 18px;
-            border: 2px solid rgba(255, 255, 255, 0.15);
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.05);
             border-top-color: #ffffff;
             border-radius: 50%;
             animation: spin 0.7s linear infinite;
             vertical-align: middle;
-            margin-right: 0.5rem;
+            margin-right: 0.4rem;
         }
 
         @keyframes spin {
@@ -249,269 +474,527 @@
         }
 
         /* ============================================================
-                   FOOTER
-                   ============================================================ */
-        .footer {
-            text-align: center;
-            margin-top: 1.75rem;
-            font-size: 0.65rem;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.15);
-            letter-spacing: 0.05em;
+           SCROLLBAR
+           ============================================================ */
+        ::-webkit-scrollbar {
+            width: 4px;
         }
 
-        .footer .chsh {
-            display: inline-block;
-            background: rgba(0, 200, 255, 0.05);
-            padding: 0.15rem 0.6rem;
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 100px;
-            border: 1px solid rgba(0, 200, 255, 0.05);
-            margin-top: 0.3rem;
-            font-weight: 500;
-            color: rgba(122, 208, 255, 0.5);
-        }
-
-        /* ============================================================
-                   RESPONSIVE
-                   ============================================================ */
-        @media (max-width: 480px) {
-            .login-card {
-                padding: 1.75rem 1.25rem 1.5rem;
-            }
-
-            .logo .main {
-                font-size: 1.5rem;
-            }
-
-            .form-group input {
-                font-size: 0.9rem;
-                padding: 0.7rem 0.9rem;
-            }
         }
     </style>
 </head>
 <body>
 
-    <div class="login-card">
-
-        <!-- QUANTUM BADGE -->
-        <div class="quantum-badge">
+    <!-- ============================================================
+    TOP BAR
+    ============================================================ -->
+    <header class="topbar">
+        <div class="brand">
             <span class="icon">⚛️</span>
-            CHSH S=2.76 · 98.4% · SA 2026/05142
+            <span class="name">KD QUANTUM</span>
+            <span class="badge">CHSH S=2.76 · 98.4%</span>
         </div>
-
-        <!-- LOGO -->
-        <div class="logo">
-            <div class="main">KD QUANTUM</div>
-            <div class="sub">Trading Platform</div>
-            <div class="patent">IBM-Verified · Patent Pending</div>
+        <div class="user-section">
+            <span class="username" id="usernameDisplay">Loading...</span>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
         </div>
+    </header>
 
-        <!-- LOGIN FORM -->
-        <form class="login-form" id="loginForm" autocomplete="off">
-            <div class="form-group">
-                <label for="username">Username</label>
-                <input
-                type="text"
-                id="username"
-                placeholder="Enter your username"
-                required
-                autofocus
-                />
+    <!-- ============================================================
+    DASHBOARD GRID
+    ============================================================ -->
+    <div class="dashboard-grid">
+
+        <!-- LEFT COLUMN: CHART + SIGNAL -->
+        <div class="chart-panel">
+            <div class="header">
+                <span class="title">📊 QUANTUM TRADING ENGINE</span>
+                <div class="symbol-selector" id="symbolSelector">
+                    <button class="active" data-symbol="EURUSD">EURUSD</button>
+                    <button data-symbol="GBPUSD">GBPUSD</button>
+                    <button data-symbol="USDJPY">USDJPY</button>
+                    <button data-symbol="USDCAD">USDCAD</button>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input
-                type="password"
-                id="password"
-                placeholder="Enter your password"
-                required
-                />
+            <!-- Chart Placeholder -->
+            <div class="chart-container" id="chartContainer">
+                <div class="placeholder-text">
+                    <div class="big">📈</div>
+                    <div>Chart loading...<br /><span style="font-size:0.6rem;color:rgba(255,255,255,0.1);">Quantum verified · CHSH S=2.76</span></div>
+                </div>
             </div>
 
-            <button type="submit" class="login-btn" id="loginBtn">
-                <span id="btnText">Sign In</span>
-            </button>
-
-            <!-- Message area -->
-            <div class="message" id="message"></div>
-        </form>
-
-        <!-- FOOTER -->
-        <div class="footer">
-            <div class="chsh">⚛️ CHSH S=2.76 · Quantum Verified</div>
-            &copy; 2026 KD Quantum · All rights reserved.
+            <!-- Signal Display -->
+            <div style="margin-top:1rem;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;">
+                <div class="signal-card" style="padding:0.75rem 1rem;">
+                    <div class="label">Signal</div>
+                    <div class="value hold" id="signalValue">—</div>
+                    <div class="sub" id="signalConfidence">Confidence: --%</div>
+                </div>
+                <div class="signal-card" style="padding:0.75rem 1rem;">
+                    <div class="label">Entry</div>
+                    <div class="value" style="font-size:1.2rem;color:#94d0ff;" id="signalEntry">—</div>
+                    <div class="sub">Stop Loss: <span id="signalSL">—</span></div>
+                </div>
+                <div class="signal-card" style="padding:0.75rem 1rem;">
+                    <div class="label">Take Profit</div>
+                    <div class="value" style="font-size:1.2rem;color:#94d0ff;" id="signalTP">—</div>
+                    <div class="sub">Quantum Verified ⚛️</div>
+                </div>
+            </div>
         </div>
 
+        <!-- RIGHT COLUMN: SIGNAL + TRADE FORM -->
+        <div class="signal-panel">
+
+            <!-- Account Selector -->
+            <div class="signal-card">
+                <div class="label">Select Account</div>
+                <div class="account-selector" id="accountSelector">
+                    <button class="active" data-account="account1">Account 1</button>
+                    <button data-account="account2">Account 2</button>
+                    <button data-account="account3">Account 3</button>
+                </div>
+                <div style="margin-top:0.5rem;font-size:0.7rem;color:rgba(255,255,255,0.3);">
+                    Balance: <span id="accountBalance">—</span>
+                </div>
+            </div>
+
+            <!-- Trade Form -->
+            <div class="signal-card">
+                <div class="label">Execute Trade</div>
+                <form class="trade-form" id="tradeForm">
+                    <div class="full-width">
+                        <label>Symbol</label>
+                        <select id="tradeSymbol">
+                            <option value="EURUSD">EURUSD</option>
+                            <option value="GBPUSD">GBPUSD</option>
+                            <option value="USDJPY">USDJPY</option>
+                            <option value="USDCAD">USDCAD</option>
+                            <option value="AUDUSD">AUDUSD</option>
+                            <option value="USDCHF">USDCHF</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Volume (lots)</label>
+                        <input type="number" id="tradeVolume" value="1.0" step="0.01" min="0.01" />
+                    </div>
+                    <div>
+                        <label>Account</label>
+                        <select id="tradeAccount">
+                            <option value="account1">Account 1</option>
+                            <option value="account2">Account 2</option>
+                            <option value="account3">Account 3</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Stop Loss</label>
+                        <input type="number" id="tradeSL" placeholder="Optional" step="0.00001" />
+                    </div>
+                    <div>
+                        <label>Take Profit</label>
+                        <input type="number" id="tradeTP" placeholder="Optional" step="0.00001" />
+                    </div>
+                    <div class="trade-buttons">
+                        <button type="button" class="btn-buy" id="btnBuy">BUY</button>
+                        <button type="button" class="btn-sell" id="btnSell">SELL</button>
+                    </div>
+                    <div class="trade-status" id="tradeStatus"></div>
+                </form>
+            </div>
+
+            <!-- Market Data -->
+            <div class="signal-card" style="max-height:300px;overflow-y:auto;">
+                <div class="label">Market Watch</div>
+                <table class="market-table" id="marketTable">
+                    <thead>
+                        <tr>
+                            <th>Symbol</th>
+                            <th>Bid</th>
+                            <th>Ask</th>
+                            <th>Spread</th>
+                        </tr>
+                    </thead>
+                    <tbody id="marketBody">
+                        <tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.15);">Loading market data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
     </div>
 
+    <!-- ============================================================
+    JAVASCRIPT
+    ============================================================ -->
     <script>
         (function() {
             'use strict';
 
             // ============================================================
+            // STATE
+            // ============================================================
+            const state = {
+                token: null,
+                username: null,
+                selectedSymbol: 'EURUSD',
+                selectedAccount: 'account1',
+                signal: null
+            };
+
+            // ============================================================
             // DOM REFS
             // ============================================================
-            const form = document.getElementById('loginForm');
-            const usernameInput = document.getElementById('username');
-            const passwordInput = document.getElementById('password');
-            const loginBtn = document.getElementById('loginBtn');
-            const btnText = document.getElementById('btnText');
-            const messageEl = document.getElementById('message');
+            const $ = (id) => document.getElementById(id);
+            const usernameDisplay = $('usernameDisplay');
+            const logoutBtn = $('logoutBtn');
+            const symbolSelector = $('symbolSelector');
+            const accountSelector = $('accountSelector');
+            const signalValue = $('signalValue');
+            const signalConfidence = $('signalConfidence');
+            const signalEntry = $('signalEntry');
+            const signalSL = $('signalSL');
+            const signalTP = $('signalTP');
+            const accountBalance = $('accountBalance');
+            const tradeSymbol = $('tradeSymbol');
+            const tradeVolume = $('tradeVolume');
+            const tradeAccount = $('tradeAccount');
+            const tradeSL = $('tradeSL');
+            const tradeTP = $('tradeTP');
+            const btnBuy = $('btnBuy');
+            const btnSell = $('btnSell');
+            const tradeStatus = $('tradeStatus');
+            const marketBody = $('marketBody');
+            const chartContainer = $('chartContainer');
 
             // ============================================================
-            // HELPERS
+            // AUTH CHECK
             // ============================================================
+            function checkAuth() {
+                const token = localStorage.getItem('quantum_token');
+                const username = localStorage.getItem('quantum_username');
 
-            /** Show a message (error or success) */
-            function showMessage(text, type) {
-                messageEl.textContent = text;
-                messageEl.className = 'message ' + type;
-                // Auto-hide after 5s for success, keep errors visible
-                if (type === 'success') {
-                    setTimeout(() => {
-                        messageEl.className = 'message';
-                    }, 5000);
-                }
-            }
-
-            /** Clear the message */
-            function clearMessage() {
-                messageEl.className = 'message';
-                messageEl.textContent = '';
-            }
-
-            /** Set loading state on button */
-            function setLoading(isLoading) {
-                if (isLoading) {
-                    loginBtn.disabled = true;
-                    btnText.innerHTML = '<span class="spinner"></span> Logging in...';
-                } else {
-                    loginBtn.disabled = false;
-                    btnText.textContent = 'Sign In';
-                }
-            }
-
-            /** Get the API base URL — falls back to current origin */
-            function getApiBase() {
-                // If you're serving the frontend from a different origin than the backend,
-                // set this to your backend URL (e.g., https://your-backend.onrender.com)
-                // For same-origin deployment, just use ''
-                return ''; // or 'https://your-backend.onrender.com'
-            }
-
-            // ============================================================
-            // LOGIN HANDLER
-            // ============================================================
-
-            async function handleLogin(event) {
-                event.preventDefault();
-                clearMessage();
-
-                // 1. Get credentials
-                const username = usernameInput.value.trim();
-                const password = passwordInput.value.trim();
-
-                if (!username || !password) {
-                    showMessage('Please enter both username and password.', 'error');
+                if (!token || !username) {
+                    window.location.href = '/';
                     return;
                 }
 
-                // 2. Disable button, show loading
-                setLoading(true);
+                state.token = token;
+                state.username = username;
+                usernameDisplay.textContent = '👤 ' + username;
+            }
+
+            // ============================================================
+            // API HELPERS
+            // ============================================================
+            function getHeaders() {
+                return {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'Authorization': 'Bearer ' + state.token
+                };
+            }
+
+            async function apiFetch(endpoint, options = {}) {
+                const baseUrl = ''; // or your backend URL
+                const response = await fetch(baseUrl + endpoint, {
+                    ...options,
+                    headers: {
+                        ...getHeaders(),
+                        ...(options.headers || {})
+                    }
+                });
+
+                if (response.status === 401) {
+                    // Token expired or invalid
+                    localStorage.removeItem('quantum_token');
+                    localStorage.removeItem('quantum_username');
+                    window.location.href = '/';
+                    throw new Error('Session expired');
+                }
+
+                return response;
+            }
+
+            // ============================================================
+            // LOGOUT
+            // ============================================================
+            async function logout() {
+                try {
+                    await apiFetch('/logout', { method: 'POST' });
+                } catch (e) {
+                    // Ignore errors on logout
+                }
+                localStorage.removeItem('quantum_token');
+                localStorage.removeItem('quantum_username');
+                window.location.href = '/';
+            }
+
+            logoutBtn.addEventListener('click', logout);
+
+            // ============================================================
+            // LOAD SIGNAL
+            // ============================================================
+            async function loadSignal(symbol) {
+                try {
+                    const response = await apiFetch(`/api/signals/latest?symbol=${symbol}`);
+                    const data = await response.json();
+
+                    state.signal = data;
+
+                    // Update UI
+                    const signal = data.signal || 'HOLD';
+                    signalValue.textContent = signal;
+                    signalValue.className = 'value ' + signal.toLowerCase();
+                    signalConfidence.textContent = `Confidence: ${data.confidence}% · CHSH S=2.76`;
+                    signalEntry.textContent = data.entry || '—';
+                    signalSL.textContent = data.stop_loss || '—';
+                    signalTP.textContent = data.take_profit || '—';
+
+                    // Pre-fill trade form with signal values
+                    if (data.entry) {
+                        // We don't auto-fill entry price, but we can set SL/TP
+                        if (data.stop_loss) tradeSL.value = data.stop_loss;
+                        if (data.take_profit) tradeTP.value = data.take_profit;
+                    }
+
+                    // Update chart placeholder
+                    chartContainer.innerHTML = `
+                            <div class="placeholder-text">
+                                <div class="big">📈</div>
+                                <div>${symbol} · ${signal} @ ${data.entry || '—'}<br />
+                                <span style="font-size:0.6rem;color:rgba(255,255,255,0.1);">
+                                    ⚛️ Quantum Verified · CHSH S=2.76 · ${data.confidence}% confidence
+                                </span></div>
+                            </div>
+                        `;
+
+                } catch (error) {
+                    console.error('Error loading signal:', error);
+                    signalValue.textContent = 'ERROR';
+                    signalConfidence.textContent = 'Failed to load signal';
+                }
+            }
+
+            // ============================================================
+            // LOAD MARKET DATA
+            // ============================================================
+            async function loadMarketData() {
+                try {
+                    const response = await apiFetch('/api/ic/market/all');
+                    const data = await response.json();
+
+                    if (!data.data) {
+                        marketBody.innerHTML =
+                            `<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.15);">No data available</td></tr>`;
+                        return;
+                    }
+
+                    const symbols = Object.keys(data.data).slice(0, 12);
+                    let html = '';
+                    for (const symbol of symbols) {
+                        const quote = data.data[symbol];
+                        html += `
+                                <tr>
+                                    <td class="symbol-name">${symbol}</td>
+                                    <td class="bid">${quote.bid || '—'}</td>
+                                    <td class="ask">${quote.ask || '—'}</td>
+                                    <td class="spread">${quote.spread || '—'}</td>
+                                </tr>
+                            `;
+                    }
+                    marketBody.innerHTML = html;
+
+                } catch (error) {
+                    console.error('Error loading market data:', error);
+                    marketBody.innerHTML =
+                        `<tr><td colspan="4" style="text-align:center;color:rgba(255,50,50,0.3);">Failed to load market data</td></tr>`;
+                }
+            }
+
+            // ============================================================
+            // LOAD ACCOUNT INFO
+            // ============================================================
+            async function loadAccountInfo(accountId) {
+                try {
+                    const response = await apiFetch(`/api/ic/account/${accountId}/info`);
+                    const data = await response.json();
+
+                    accountBalance.textContent = `$${data.balance?.toFixed(2) || '—'} (${data.type || 'demo'})`;
+
+                } catch (error) {
+                    console.error('Error loading account info:', error);
+                    accountBalance.textContent = 'Failed to load';
+                }
+            }
+
+            // ============================================================
+            // EXECUTE TRADE
+            // ============================================================
+            async function executeTrade(action) {
+                const symbol = tradeSymbol.value;
+                const volume = parseFloat(tradeVolume.value) || 1.0;
+                const accountId = tradeAccount.value;
+                const stopLoss = tradeSL.value ? parseFloat(tradeSL.value) : null;
+                const takeProfit = tradeTP.value ? parseFloat(tradeTP.value) : null;
+
+                // Validate
+                if (!symbol) {
+                    showTradeStatus('Please select a symbol.', 'error');
+                    return;
+                }
+
+                if (volume <= 0) {
+                    showTradeStatus('Volume must be greater than 0.', 'error');
+                    return;
+                }
+
+                // Disable buttons
+                btnBuy.disabled = true;
+                btnSell.disabled = true;
+                showTradeStatus('⏳ Executing trade...', '');
 
                 try {
-                    // 3. Build request
-                    const baseUrl = getApiBase();
-                    const url = baseUrl + '/login';
-
-                    const response = await fetch(url, {
+                    const response = await apiFetch('/api/ic/trade', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
                         body: JSON.stringify({
-                            username: username,
-                            password: password
+                            symbol: symbol,
+                            action: action,
+                            volume: volume,
+                            stop_loss: stopLoss,
+                            take_profit: takeProfit,
+                            account_id: accountId,
+                            comment: `Quantum Signal · CHSH S=2.76`
                         })
                     });
 
-                    // 4. Parse response
                     const data = await response.json();
 
                     if (!response.ok) {
-                        // Handle HTTP errors (401, 400, 500, etc.)
-                        const errorMsg = data.detail || data.message || 'Login failed. Please try again.';
-                        throw new Error(errorMsg);
+                        throw new Error(data.detail || data.message || 'Trade execution failed');
                     }
 
-                    // 5. Login success — we expect a token
-                    if (data.status === 'success' && data.token) {
-                        // Store the token (localStorage persists across sessions)
-                        localStorage.setItem('quantum_token', data.token);
-                        localStorage.setItem('quantum_username', data.username);
+                    showTradeStatus(`✅ ${action} ${symbol} executed! Trade ID: ${data.trade_id}`, 'success');
 
-                        // Show success message briefly
-                        showMessage('✅ Login successful! Redirecting...', 'success');
-
-                        // Redirect to the dashboard (same domain)
-                        // You can change this to '/dashboard' or './dashboard.html'
-                        setTimeout(() => {
-                            window.location.href = '/dashboard.html';
-                        }, 800);
-
-                    } else {
-                        // Unexpected success response without token
-                        throw new Error('Invalid server response: missing token.');
-                    }
+                    // Refresh account info and signal
+                    loadAccountInfo(accountId);
+                    loadSignal(state.selectedSymbol);
 
                 } catch (error) {
-                    // Show error message
-                    showMessage('❌ ' + error.message, 'error');
-                    // Re-enable the button
-                    setLoading(false);
+                    showTradeStatus('❌ ' + error.message, 'error');
+                } finally {
+                    btnBuy.disabled = false;
+                    btnSell.disabled = false;
                 }
             }
 
-            // ============================================================
-            // CHECK FOR EXISTING SESSION (optional)
-            // ============================================================
-
-            function checkExistingSession() {
-                const token = localStorage.getItem('quantum_token');
-                if (token) {
-                    // Optionally, you can redirect to dashboard immediately
-                    // if you want to skip the login page for returning users.
-                    // For security, you might want to verify the token first.
-                    // For now, we'll just keep the user on the login page.
-                    // Uncomment the next lines to auto-redirect:
-                    // window.location.href = '/dashboard.html';
-                }
+            function showTradeStatus(message, type) {
+                tradeStatus.textContent = message;
+                tradeStatus.className = 'trade-status' + (type ? ' ' + type : '');
             }
 
             // ============================================================
-            // EVENT LISTENERS
+            // SYMBOL SELECTOR
             // ============================================================
+            symbolSelector.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (!btn || !btn.dataset.symbol) return;
 
-            form.addEventListener('submit', handleLogin);
+                // Update active state
+                symbolSelector.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
 
-            // Clear error when user starts typing
-            usernameInput.addEventListener('input', clearMessage);
-            passwordInput.addEventListener('input', clearMessage);
+                state.selectedSymbol = btn.dataset.symbol;
+                tradeSymbol.value = state.selectedSymbol;
+                loadSignal(state.selectedSymbol);
+            });
+
+            // ============================================================
+            // ACCOUNT SELECTOR
+            // ============================================================
+            accountSelector.addEventListener('click', (e) => {
+                const btn = e.target.closest('button');
+                if (!btn || !btn.dataset.account) return;
+
+                accountSelector.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                state.selectedAccount = btn.dataset.account;
+                tradeAccount.value = state.selectedAccount;
+                loadAccountInfo(state.selectedAccount);
+            });
+
+            // ============================================================
+            // TRADE BUTTONS
+            // ============================================================
+            btnBuy.addEventListener('click', () => executeTrade('BUY'));
+            btnSell.addEventListener('click', () => executeTrade('SELL'));
+
+            // ============================================================
+            // SYNC SYMBOL SELECTOR WITH DROPDOWN
+            // ============================================================
+            tradeSymbol.addEventListener('change', () => {
+                const symbol = tradeSymbol.value;
+                const btn = symbolSelector.querySelector(`[data-symbol="${symbol}"]`);
+                if (btn) {
+                    symbolSelector.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.selectedSymbol = symbol;
+                    loadSignal(symbol);
+                }
+            });
+
+            // ============================================================
+            // SYNC ACCOUNT SELECTOR WITH DROPDOWN
+            // ============================================================
+            tradeAccount.addEventListener('change', () => {
+                const account = tradeAccount.value;
+                const btn = accountSelector.querySelector(`[data-account="${account}"]`);
+                if (btn) {
+                    accountSelector.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    state.selectedAccount = account;
+                    loadAccountInfo(account);
+                }
+            });
 
             // ============================================================
             // INIT
             // ============================================================
+            async function init() {
+                checkAuth();
 
-            // Check if already logged in (optional)
-            checkExistingSession();
+                // Load initial data
+                await loadSignal(state.selectedSymbol);
+                await loadMarketData();
+                await loadAccountInfo(state.selectedAccount);
 
-            // Focus the username field on load
-            usernameInput.focus();
+                // Set initial form values
+                tradeSymbol.value = state.selectedSymbol;
+                tradeAccount.value = state.selectedAccount;
 
-            console.log('🔐 KD Quantum Login ready — CHSH S=2.76');
+                // Auto-refresh market data every 10 seconds
+                setInterval(loadMarketData, 10000);
+
+                // Auto-refresh signal every 30 seconds
+                setInterval(() => loadSignal(state.selectedSymbol), 30000);
+
+                console.log('⚛️ KD Quantum Dashboard ready — CHSH S=2.76');
+                console.log(`👤 Logged in as: ${state.username}`);
+                console.log(`📊 Selected symbol: ${state.selectedSymbol}`);
+                console.log(`🏦 Selected account: ${state.selectedAccount}`);
+            }
+
+            // Start
+            init();
 
         })();
     </script>
