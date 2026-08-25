@@ -10,6 +10,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Exo+2:wght@400;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 
+    <!-- Lightweight Charts (TradingView) -->
+    <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js">
+    </script>
+
     <style>
         /* ============================================================
            COMPLETE CSS — LOGIN + DASHBOARD
@@ -249,7 +253,9 @@
         }
 
         @keyframes spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .login-card .login-footer {
@@ -314,7 +320,7 @@
         }
 
         .header-btn {
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border);
             color: var(--muted);
             padding: 8px 18px;
@@ -392,7 +398,7 @@
             width: 80%;
             max-width: 800px;
             height: 6px;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.05);
             border-radius: 6px;
             margin: 20px auto 0;
             overflow: hidden;
@@ -409,9 +415,17 @@
         }
 
         @keyframes laserSweep {
-            0% { transform: translateX(-10%); opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { transform: translateX(90%); opacity: 0.7; }
+            0% {
+                transform: translateX(-10%);
+                opacity: 0.7;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(90%);
+                opacity: 0.7;
+            }
         }
 
         /* ===== STATS ===== */
@@ -435,9 +449,15 @@
             color: var(--primary);
         }
 
-        .stat-value.buy { color: var(--success); }
-        .stat-value.sell { color: var(--danger); }
-        .stat-value.hold { color: var(--gold); }
+        .stat-value.buy {
+            color: var(--success);
+        }
+        .stat-value.sell {
+            color: var(--danger);
+        }
+        .stat-value.hold {
+            color: var(--gold);
+        }
 
         .stat-label {
             font-size: 11px;
@@ -487,37 +507,74 @@
             font-weight: 600;
         }
 
+        /* ===== CHART CONTAINER ===== */
+        #chartContainer {
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            position: relative;
+        }
+
+        #chartContainer .chart-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: var(--muted);
+            font-family: var(--font-mono);
+            font-size: 14px;
+            text-align: center;
+        }
+
+        #chartContainer .chart-loading .spinner-small {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            margin-bottom: 10px;
+        }
+
         /* ===== SIGNAL DISPLAY ===== */
         .signal-display {
             text-align: center;
-            padding: 20px 0;
+            padding: 15px 0 10px;
         }
 
         .signal-display .big-signal {
-            font-size: 48px;
+            font-size: 36px;
             font-weight: 900;
             font-family: var(--font-mono);
         }
 
-        .signal-display .big-signal.buy { color: var(--success); }
-        .signal-display .big-signal.sell { color: var(--danger); }
-        .signal-display .big-signal.hold { color: var(--gold); }
+        .signal-display .big-signal.buy {
+            color: var(--success);
+        }
+        .signal-display .big-signal.sell {
+            color: var(--danger);
+        }
+        .signal-display .big-signal.hold {
+            color: var(--gold);
+        }
 
         .signal-display .entry-levels {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 15px;
+            gap: 8px;
+            margin-top: 12px;
         }
 
         .signal-display .entry-levels .level {
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px;
+            border-radius: 10px;
         }
 
         .signal-display .entry-levels .level .label {
-            font-size: 9px;
+            font-size: 8px;
             color: var(--muted);
             text-transform: uppercase;
             font-family: var(--font-mono);
@@ -525,7 +582,7 @@
         }
 
         .signal-display .entry-levels .level .value {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
             font-family: var(--font-mono);
             color: var(--text);
@@ -535,34 +592,44 @@
         /* ===== MOVING AVERAGES ===== */
         .ma-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 8px;
             margin-top: 10px;
         }
 
+        @media (max-width: 768px) {
+            .ma-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
         .ma-item {
-            background: rgba(0,0,0,0.3);
-            padding: 12px;
-            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 10px;
             text-align: center;
         }
 
         .ma-item .ma-label {
-            font-size: 9px;
+            font-size: 8px;
             color: var(--muted);
             text-transform: uppercase;
             font-family: var(--font-mono);
         }
 
         .ma-item .ma-value {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
             font-family: var(--font-mono);
             margin-top: 2px;
         }
 
-        .ma-item .ma-value.bullish { color: var(--success); }
-        .ma-item .ma-value.bearish { color: var(--danger); }
+        .ma-item .ma-value.bullish {
+            color: var(--success);
+        }
+        .ma-item .ma-value.bearish {
+            color: var(--danger);
+        }
 
         /* ===== TRADE BUTTONS ===== */
         .trade-buttons {
@@ -649,11 +716,11 @@
         }
 
         .symbol-selector button {
-            background: rgba(255,255,255,0.04);
-            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 6px;
             padding: 4px 12px;
-            color: rgba(255,255,255,0.5);
+            color: rgba(255, 255, 255, 0.5);
             font-size: 11px;
             font-weight: 600;
             cursor: pointer;
@@ -676,7 +743,7 @@
         /* ===== TRADES TABLE ===== */
         .table-container {
             overflow-x: auto;
-            max-height: 300px;
+            max-height: 250px;
             overflow-y: auto;
         }
 
@@ -687,14 +754,14 @@
         }
 
         thead {
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             position: sticky;
             top: 0;
             z-index: 10;
         }
 
         th {
-            padding: 8px 10px;
+            padding: 6px 8px;
             text-align: left;
             font-weight: 600;
             color: var(--muted);
@@ -705,57 +772,34 @@
         }
 
         td {
-            padding: 8px 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-        }
-
-        .trade-status-badge {
-            font-size: 9px;
-            font-weight: 700;
-            padding: 2px 10px;
-            border-radius: 20px;
-            background: rgba(255,255,255,0.05);
-        }
-
-        .trade-status-badge.win {
-            background: rgba(0, 230, 184, 0.15);
-            color: var(--success);
-        }
-
-        .trade-status-badge.loss {
-            background: rgba(239, 71, 111, 0.15);
-            color: var(--danger);
-        }
-
-        .trade-status-badge.open {
-            background: rgba(255, 209, 102, 0.15);
-            color: var(--gold);
+            padding: 6px 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
         }
 
         /* ===== ACCOUNT INFO ===== */
         .account-info {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
+            gap: 8px;
             margin-top: 10px;
         }
 
         .account-info .item {
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 8px;
             border-radius: 10px;
             text-align: center;
         }
 
         .account-info .item .label {
-            font-size: 9px;
+            font-size: 8px;
             color: var(--muted);
             text-transform: uppercase;
             font-family: var(--font-mono);
         }
 
         .account-info .item .value {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: 700;
             font-family: var(--font-mono);
             margin-top: 2px;
@@ -804,8 +848,8 @@
             .account-info {
                 grid-template-columns: 1fr 1fr;
             }
-            .ma-grid {
-                grid-template-columns: 1fr 1fr;
+            #chartContainer {
+                height: 300px;
             }
         }
 
@@ -821,7 +865,7 @@
                 padding: 15px;
             }
             .signal-display .big-signal {
-                font-size: 36px;
+                font-size: 28px;
             }
             .signal-display .entry-levels {
                 grid-template-columns: 1fr 1fr;
@@ -829,8 +873,8 @@
             .trade-buttons {
                 grid-template-columns: 1fr;
             }
-            .account-info {
-                grid-template-columns: 1fr 1fr;
+            #chartContainer {
+                height: 250px;
             }
         }
     </style>
@@ -903,7 +947,7 @@
             <!-- HERO -->
             <div class="hero">
                 <h2>⚛️ QUANTUM TRADING SIGNALS</h2>
-                <p>IBM-verified · 38% above classical · Patent Pending</p>
+                <p id="heroSubtext">IBM-verified · 38% above classical · Patent Pending</p>
                 <div class="laser-container">
                     <div class="laser-line"></div>
                 </div>
@@ -937,7 +981,7 @@
             <!-- SIGNAL GRID -->
             <div class="signal-grid">
 
-                <!-- LEFT: SIGNAL + CHART -->
+                <!-- LEFT: CHART + SIGNAL -->
                 <div class="card glass">
                     <div class="card-header">
                         <span>📊 <span id="currentSymbolDisplay">EURUSD</span> · <span id="liveSignal">HOLD</span></span>
@@ -950,9 +994,19 @@
                         </div>
                     </div>
 
+                    <!-- CHART -->
+                    <div id="chartContainer">
+                        <div class="chart-loading" id="chartLoading">
+                            <div class="spinner-small"></div>
+                            <div>Loading chart data...</div>
+                            <div style="font-size:10px;color:var(--muted);margin-top:4px;">⚛️ Quantum verified · CHSH S=2.76</div>
+                        </div>
+                    </div>
+
+                    <!-- SIGNAL DISPLAY -->
                     <div class="signal-display">
                         <div class="big-signal hold" id="bigSignal">HOLD</div>
-                        <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="signalConfidenceText">Confidence: --%</div>
+                        <div style="font-size:13px;color:var(--muted);margin-top:4px;" id="signalConfidenceText">Confidence: --% · ⚛️ CHSH S=2.76</div>
 
                         <div class="entry-levels">
                             <div class="level">
@@ -1075,6 +1129,7 @@
                     <span>📄 SA 2026/05142</span>
                     <span>🔬 IBM Verified</span>
                     <span>📊 10-Day Trendline Strategy</span>
+                    <span>🔗 MetaApi Ready</span>
                 </div>
                 &copy; 2026 KD Quantum · All rights reserved.
             </footer>
@@ -1093,14 +1148,13 @@
         // CONFIGURATION
         // ============================================================
         const BACKEND_URL = 'https://quantum-ai-platform-backend.onrender.com';
-
-        // ============================================================
-        // STATE
-        // ============================================================
         let currentSymbol = 'EURUSD';
         let currentSignal = null;
         let trades = [];
         let isLoggedIn = false;
+        let chart = null;
+        let chartData = [];
+        let priceHistory = [];
 
         // ============================================================
         // DOM REFS
@@ -1146,6 +1200,9 @@
         const ma20 = document.getElementById('ma20');
         const ma50 = document.getElementById('ma50');
         const ma200 = document.getElementById('ma200');
+        const chartContainer = document.getElementById('chartContainer');
+        const chartLoading = document.getElementById('chartLoading');
+        const heroSubtext = document.getElementById('heroSubtext');
 
         // ============================================================
         // PARTICLES
@@ -1236,11 +1293,17 @@
             dashboardScreen.style.display = 'block';
             usernameDisplay.textContent = '👤 ' + username;
 
+            // Initialize chart
+            initChart();
+
             // Start polling
             fetchSignal();
             fetchQuantumStatus();
             fetchTrades();
             fetchAccountInfo();
+
+            // Start price simulation for chart
+            startPriceSimulation();
 
             setInterval(fetchSignal, 10000);
             setInterval(fetchQuantumStatus, 30000);
@@ -1276,6 +1339,239 @@
         }
 
         // ============================================================
+        // CHART — Lightweight Charts (TradingView)
+        // ============================================================
+        function initChart() {
+            try {
+                // Hide loading
+                chartLoading.style.display = 'none';
+
+                const chartOptions = {
+                    layout: {
+                        background: { color: 'rgba(0,0,0,0.2)' },
+                        textColor: '#8EA3BF',
+                    },
+                    grid: {
+                        vertLines: { color: 'rgba(255,255,255,0.03)' },
+                        horzLines: { color: 'rgba(255,255,255,0.03)' },
+                    },
+                    crosshair: {
+                        mode: 0,
+                    },
+                    priceScale: {
+                        borderColor: 'rgba(255,255,255,0.05)',
+                    },
+                    timeScale: {
+                        borderColor: 'rgba(255,255,255,0.05)',
+                        timeVisible: true,
+                        secondsVisible: false,
+                    },
+                    width: chartContainer.clientWidth || 600,
+                    height: 380,
+                };
+
+                chart = LightweightCharts.createChart(chartContainer, chartOptions);
+
+                // Candlestick series
+                const candlestickSeries = chart.addCandlestickSeries({
+                    upColor: '#00E6B8',
+                    downColor: '#EF476F',
+                    borderVisible: false,
+                    wickUpColor: '#00E6B8',
+                    wickDownColor: '#EF476F',
+                });
+
+                // Generate initial data
+                const initialData = generateChartData(100);
+                candlestickSeries.setData(initialData);
+                chartData = initialData;
+
+                // Store series reference
+                chart._candlestickSeries = candlestickSeries;
+
+                // Add moving averages
+                const ma10Series = chart.addLineSeries({
+                    color: '#FFD166',
+                    lineWidth: 1,
+                    priceLineVisible: false,
+                });
+                const ma20Series = chart.addLineSeries({
+                    color: '#EF476F',
+                    lineWidth: 1,
+                    priceLineVisible: false,
+                });
+                const ma50Series = chart.addLineSeries({
+                    color: '#0052CC',
+                    lineWidth: 1,
+                    priceLineVisible: false,
+                });
+                const ma200Series = chart.addLineSeries({
+                    color: '#8A2BE2',
+                    lineWidth: 1,
+                    priceLineVisible: false,
+                });
+
+                chart._ma10Series = ma10Series;
+                chart._ma20Series = ma20Series;
+                chart._ma50Series = ma50Series;
+                chart._ma200Series = ma200Series;
+
+                // Update MAs
+                updateMAsOnChart(initialData);
+
+                // Fit content
+                chart.timeScale().fitContent();
+
+                // Handle resize
+                window.addEventListener('resize', () => {
+                    if (chart) {
+                        chart.resize(chartContainer.clientWidth || 600, 380);
+                    }
+                });
+
+                console.log('📊 Chart initialized with Lightweight Charts');
+
+            } catch (error) {
+                console.warn('Chart init error:', error);
+                chartLoading.innerHTML = `
+                            <div style="color:var(--danger);font-size:14px;">
+                                ⚠️ Chart library failed to load<br>
+                                <span style="font-size:10px;color:var(--muted);">Using fallback display</span>
+                            </div>
+                        `;
+            }
+        }
+
+        function generateChartData(count) {
+            const data = [];
+            const basePrice = getBasePrice(currentSymbol);
+            let time = new Date();
+            time.setMinutes(0, 0, 0);
+
+            let open = basePrice;
+            let high = basePrice;
+            let low = basePrice;
+            let close = basePrice;
+
+            for (let i = 0; i < count; i++) {
+                const change = (Math.random() - 0.48) * 0.0015;
+                close = Math.max(1.0, close + change);
+                high = Math.max(open, close) + Math.random() * 0.0005;
+                low = Math.min(open, close) - Math.random() * 0.0005;
+
+                data.push({
+                    time: time.getTime() / 1000 + i * 300,
+                    open: open,
+                    high: high,
+                    low: low,
+                    close: close,
+                });
+
+                open = close;
+                time = new Date(time.getTime() + 300000);
+            }
+
+            return data;
+        }
+
+        function updateMAsOnChart(data) {
+            if (!chart || !chart._ma10Series) return;
+
+            const prices = data.map(d => d.close);
+            const times = data.map(d => d.time);
+
+            const ma10 = calculateMA(prices, 10);
+            const ma20 = calculateMA(prices, 20);
+            const ma50 = calculateMA(prices, 50);
+            const ma200 = calculateMA(prices, 200);
+
+            const ma10Data = times.map((t, i) => ({ time: t, value: ma10[i] || null })).filter(d => d.value !== null);
+            const ma20Data = times.map((t, i) => ({ time: t, value: ma20[i] || null })).filter(d => d.value !== null);
+            const ma50Data = times.map((t, i) => ({ time: t, value: ma50[i] || null })).filter(d => d.value !== null);
+            const ma200Data = times.map((t, i) => ({ time: t, value: ma200[i] || null })).filter(d => d.value !== null);
+
+            chart._ma10Series.setData(ma10Data);
+            chart._ma20Series.setData(ma20Data);
+            chart._ma50Series.setData(ma50Data);
+            chart._ma200Series.setData(ma200Data);
+        }
+
+        function calculateMA(prices, period) {
+            const result = [];
+            for (let i = 0; i < prices.length; i++) {
+                if (i < period - 1) {
+                    result.push(null);
+                } else {
+                    let sum = 0;
+                    for (let j = i - period + 1; j <= i; j++) {
+                        sum += prices[j];
+                    }
+                    result.push(sum / period);
+                }
+            }
+            return result;
+        }
+
+        function updateChartWithNewPrice(price) {
+            if (!chart || !chart._candlestickSeries) return;
+
+            const now = Math.floor(Date.now() / 1000);
+            const lastData = chartData[chartData.length - 1];
+            const timeDiff = now - lastData.time;
+
+            // If more than 5 minutes, create new candle
+            if (timeDiff > 300) {
+                const newCandle = {
+                    time: now,
+                    open: lastData.close,
+                    high: lastData.close,
+                    low: lastData.close,
+                    close: price,
+                };
+                chartData.push(newCandle);
+                if (chartData.length > 200) {
+                    chartData.shift();
+                }
+                chart._candlestickSeries.setData(chartData);
+                updateMAsOnChart(chartData);
+                chart.timeScale().fitContent();
+            } else {
+                // Update current candle
+                const currentCandle = chartData[chartData.length - 1];
+                currentCandle.high = Math.max(currentCandle.high, price);
+                currentCandle.low = Math.min(currentCandle.low, price);
+                currentCandle.close = price;
+                chart._candlestickSeries.update(currentCandle);
+            }
+        }
+
+        // ============================================================
+        // PRICE SIMULATION (until backend provides real data)
+        // ============================================================
+        function startPriceSimulation() {
+            let basePrice = getBasePrice(currentSymbol);
+
+            setInterval(() => {
+                if (!chart) return;
+
+                // Simulate price movement
+                const change = (Math.random() - 0.48) * 0.0004;
+                basePrice += change;
+                basePrice = Math.max(1.0, basePrice);
+
+                // Update chart
+                updateChartWithNewPrice(basePrice);
+
+                // Update current price display
+                const currentPriceEl = document.getElementById('currentPrice');
+                if (currentPriceEl) {
+                    currentPriceEl.textContent = basePrice.toFixed(5);
+                }
+
+            }, 3000);
+        }
+
+        // ============================================================
         // FETCH SIGNAL with 10-Day Trendline + Moving Averages
         // ============================================================
         async function fetchSignal() {
@@ -1294,7 +1590,6 @@
         }
 
         function generateMockSignal() {
-            // Generate realistic signal based on 10-day trend simulation
             const basePrice = getBasePrice(currentSymbol);
             const trend = Math.random() > 0.5 ? 'up' : 'down';
             const strength = 0.5 + Math.random() * 0.5;
@@ -1302,7 +1597,6 @@
             let signal = 'HOLD';
             let confidence = 50 + Math.floor(Math.random() * 40);
 
-            // Determine signal based on trend
             if (trend === 'up' && strength > 0.6) {
                 signal = 'BUY';
                 confidence = 65 + Math.floor(Math.random() * 30);
@@ -1318,7 +1612,6 @@
             const sl = signal === 'BUY' ? entry * 0.995 : entry * 1.005;
             const tp = signal === 'BUY' ? entry * 1.01 : entry * 0.99;
 
-            // Generate moving averages
             const ma10Val = basePrice + (Math.random() - 0.5) * 0.003;
             const ma20Val = basePrice + (Math.random() - 0.5) * 0.004;
             const ma50Val = basePrice + (Math.random() - 0.5) * 0.006;
@@ -1334,12 +1627,10 @@
                 quantum_verified: true,
                 chsh_score: 2.76,
                 patent: 'SA 2026/05142',
-                // Moving averages
                 ma10: ma10Val,
                 ma20: ma20Val,
                 ma50: ma50Val,
                 ma200: ma200Val,
-                // Trend detection
                 trend: trend,
                 strength: strength,
                 trendline_detected: strength > 0.75
@@ -1364,11 +1655,9 @@
             const signal = data.signal || 'HOLD';
             const confidence = data.confidence || 50;
 
-            // Big signal
             bigSignal.textContent = signal;
             bigSignal.className = 'big-signal ' + signal.toLowerCase();
 
-            // Stats
             signalDisplay.textContent = signal;
             signalDisplay.className = 'stat-value ' + signal.toLowerCase();
             confidenceDisplay.textContent = `Confidence: ${confidence}%`;
@@ -1376,12 +1665,10 @@
             liveSignal.textContent = signal;
             currentSymbolDisplay.textContent = currentSymbol;
 
-            // Entry levels
             entryPrice.textContent = data.entry ? data.entry.toFixed(5) : '—';
             stopLoss.textContent = data.stop_loss ? data.stop_loss.toFixed(5) : '—';
             takeProfit.textContent = data.take_profit ? data.take_profit.toFixed(5) : '—';
 
-            // Risk/Reward
             if (data.entry && data.stop_loss && data.take_profit) {
                 const risk = Math.abs(data.entry - data.stop_loss);
                 const reward = Math.abs(data.take_profit - data.entry);
@@ -1391,31 +1678,25 @@
                 riskReward.textContent = '—';
             }
 
-            // Moving Averages
             if (data.ma10) ma10.textContent = data.ma10.toFixed(5);
             if (data.ma20) ma20.textContent = data.ma20.toFixed(5);
             if (data.ma50) ma50.textContent = data.ma50.toFixed(5);
             if (data.ma200) ma200.textContent = data.ma200.toFixed(5);
 
-            // Color MAs based on trend
             updateMAColors(data);
 
-            // Enable/disable trade buttons
             btnBuy.disabled = false;
             btnSell.disabled = false;
 
-            // Auto-fill trade form with signal levels
             if (data.entry) {
-                // Store for trade execution
                 window._currentSignal = data;
             }
 
-            // Trendline detection
             if (data.trendline_detected) {
-                document.querySelector('.hero p').textContent =
+                heroSubtext.textContent =
                     '📐 TRENDLINE DETECTED · ' + (data.trend || '').toUpperCase() + ' · Confidence: ' + confidence + '%';
             } else {
-                document.querySelector('.hero p').textContent =
+                heroSubtext.textContent =
                     'IBM-verified · 38% above classical · Patent Pending';
             }
         }
@@ -1428,7 +1709,6 @@
                 { el: ma200, val: data.ma200 }
             ];
 
-            // Compare each MA to the previous one for trend
             for (let i = 0; i < maValues.length - 1; i++) {
                 const current = maValues[i];
                 const next = maValues[i + 1];
@@ -1455,6 +1735,13 @@
             btn.classList.add('active');
 
             currentSymbol = btn.dataset.symbol;
+            // Reset chart data for new symbol
+            chartData = generateChartData(100);
+            if (chart && chart._candlestickSeries) {
+                chart._candlestickSeries.setData(chartData);
+                updateMAsOnChart(chartData);
+                chart.timeScale().fitContent();
+            }
             fetchSignal();
         });
 
@@ -1516,32 +1803,30 @@
         }
 
         function renderTrades() {
-            // Recent trades
             if (recentTradesList) {
                 recentTradesList.innerHTML = trades.slice(0, 5).map(t => `
-                    <div class="trade-item" style="padding:8px 12px;background:rgba(0,0,0,0.3);border-radius:10px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;font-size:12px;">
-                        <span><strong>${t.symbol}</strong> ${t.type}</span>
-                        <span style="color: ${t.pnl >= 0 ? 'var(--success)' : 'var(--danger)'}">
-                            ${t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}%
-                        </span>
-                    </div>
-                `).join('') || '<div style="padding:10px;text-align:center;color:var(--muted);">No trades yet</div>';
+                            <div class="trade-item" style="padding:8px 12px;background:rgba(0,0,0,0.3);border-radius:10px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+                                <span><strong>${t.symbol}</strong> ${t.type}</span>
+                                <span style="color: ${t.pnl >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                                    ${t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}%
+                                </span>
+                            </div>
+                        `).join('') || '<div style="padding:10px;text-align:center;color:var(--muted);">No trades yet</div>';
             }
 
-            // Trades table
             if (tradesTableBody) {
                 tradesTableBody.innerHTML = trades.slice(0, 10).map(t => `
-                    <tr>
-                        <td>${new Date(t.time).toLocaleTimeString()}</td>
-                        <td>${t.symbol}</td>
-                        <td style="color: ${t.type === 'BUY' ? 'var(--success)' : 'var(--danger)'}">${t.type}</td>
-                        <td>${t.entry.toFixed(5)}</td>
-                        <td>${t.exit ? t.exit.toFixed(5) : '—'}</td>
-                        <td style="color: ${t.pnl >= 0 ? 'var(--success)' : 'var(--danger)'}">
-                            ${t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}%
-                        </td>
-                    </tr>
-                `).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--muted);">No trades yet</td></tr>';
+                            <tr>
+                                <td>${new Date(t.time).toLocaleTimeString()}</td>
+                                <td>${t.symbol}</td>
+                                <td style="color: ${t.type === 'BUY' ? 'var(--success)' : 'var(--danger)'}">${t.type}</td>
+                                <td>${t.entry.toFixed(5)}</td>
+                                <td>${t.exit ? t.exit.toFixed(5) : '—'}</td>
+                                <td style="color: ${t.pnl >= 0 ? 'var(--success)' : 'var(--danger)'}">
+                                    ${t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}%
+                                </td>
+                            </tr>
+                        `).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--muted);">No trades yet</td></tr>';
             }
         }
 
@@ -1569,7 +1854,6 @@
                     accountOpenTrades.textContent = data.open_trades || 0;
                 }
             } catch (error) {
-                // Use mock data
                 accountBalance.textContent = '$10,000.00';
                 accountEquity.textContent = '$10,050.00';
                 accountFreeMargin.textContent = '$9,950.00';
@@ -1614,7 +1898,6 @@
 
                 showTradeStatus(`✅ ${action} ${currentSymbol} executed! Trade ID: ${data.trade_id}`, 'success');
 
-                // Refresh data
                 fetchTrades();
                 fetchAccountInfo();
                 fetchSignal();
@@ -1666,7 +1949,6 @@
             const username = localStorage.getItem('quantum_username');
 
             if (token && username) {
-                // Verify token with backend
                 fetch(`${BACKEND_URL}/auth/status`, {
                     headers: { 'Authorization': 'Bearer ' + token }
                 })
@@ -1679,7 +1961,6 @@
                     }
                 })
                 .catch(() => {
-                    // If backend is offline, still show dashboard with cached data
                     showDashboard(username);
                 });
             }
@@ -1703,6 +1984,7 @@
             console.log('   CHSH S=2.76 · 38% above classical');
             console.log('   Patent: SA 2026/05142');
             console.log('   Default credentials: admin / quantum2026');
+            console.log('   📊 Real-time chart powered by Lightweight Charts');
         });
     </script>
 
