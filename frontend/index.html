@@ -1,1870 +1,520 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>KD QUANTUM TRADING PLATFORM</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KD Quantum Trading — Login</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Bebas+Neue&family=Rajdhani:wght@300;400;600;700&display=swap');
-
-        :root {
-            --black: #020407;
-            --deep: #050c14;
-            --panel: #080f1a;
-            --border: #0d2035;
-            --glow-blue: #0066FF;
-            --glow-red: #CC0000;
-            --glow-cyan: #00ffcc;
-            --glow-gold: #FFD700;
-            --text: #8ab4cc;
-            --text-dim: #2d4a5e;
-            --white: #e8f4ff;
-            --bull: #00ff88;
-            --bear: #ff3333;
+        /* ============================================================
+                   RESET & BASE
+                   ============================================================ */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            background: var(--black);
-            color: var(--text);
-            font-family: 'Rajdhani', sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0a0d1a;
             min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Background Noise & Grid */
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,102,255,0.015) 2px, rgba(0,102,255,0.015) 4px);
-            pointer-events: none;
-            z-index: 1000;
-        }
-
-        body::after {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-            pointer-events: none;
-            z-index: 999;
-            opacity: 0.4;
-        }
-
-        .grid-bg {
-            position: fixed;
-            inset: 0;
-            background-image: linear-gradient(rgba(0,102,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,102,255,0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
-        }
-
-        /* Vertical Scan Line */
-        .scan-sweep {
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(0,102,255,0.4), transparent);
-            animation: sweep 8s linear infinite;
-            pointer-events: none;
-            z-index: 998;
-        }
-
-        @keyframes sweep {
-            0% { top: 0; opacity: 1; }
-            95% { opacity: 0.3; }
-            100% { top: 100vh; opacity: 0; }
-        }
-
-        /* Corner Decorations */
-        .corner {
-            position: fixed;
-            width: 30px; height: 30px;
-            border-color: rgba(0,102,255,0.3);
-            border-style: solid;
-            z-index: 500;
-        }
-        .corner-tl { top: 16px; left: 16px; border-width: 2px 0 0 2px; }
-        .corner-tr { top: 16px; right: 16px; border-width: 2px 2px 0 0; }
-        .corner-bl { bottom: 16px; left: 16px; border-width: 0 0 2px 2px; }
-        .corner-br { bottom: 16px; right: 16px; border-width: 0 2px 2px 0; }
-
-        /* Blinking Text */
-        @keyframes blinkText {
-            0%, 90%, 100% { opacity: 1; }
-            95% { opacity: 0.1; }
-        }
-        .blink-title { animation: blinkText 3s infinite; display: inline-block; }
-
-        .wrapper {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 32px 24px;
-            position: relative;
-            z-index: 10;
-        }
-
-        /* ===== HEADER ===== */
-        .header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            position: relative;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        .header::after {
-            content: '';
-            position: absolute;
-            bottom: -1px; left: 0;
-            width: 120px; height: 1px;
-            background: var(--glow-blue);
-            box-shadow: 0 0 12px var(--glow-blue);
-        }
-
-        .logo-block {
-            display: flex;
-            align-items: center;
-            gap: 25px;
-        }
-
-        .logo-img {
-            height: 100px;
-            width: auto;
-            filter: drop-shadow(0 0 25px rgba(0,102,255,0.4));
-            transition: filter 0.3s, transform 0.3s;
-        }
-        .logo-img:hover {
-            filter: drop-shadow(0 0 50px rgba(0,102,255,0.7));
-            transform: scale(1.03);
-        }
-
-        .logo-text-group { display: flex; flex-direction: column; }
-        .logo-eyebrow {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
-            letter-spacing: 4px;
-            color: var(--glow-red);
-            text-transform: uppercase;
-            animation: blinkText 2s infinite;
-        }
-        .logo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 42px;
-            letter-spacing: 4px;
-            color: var(--white);
-            line-height: 1;
-            text-shadow: 0 0 40px rgba(0,102,255,0.3);
-            position: relative;
-        }
-        .logo .blink-title { color: var(--glow-cyan); }
-        .logo-sub {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
-            letter-spacing: 5px;
-            color: var(--text-dim);
-            margin-top: 2px;
-            text-transform: uppercase;
-        }
-
-        .header-right {
-            text-align: right;
-            display: flex;
-            flex-direction: column;
-            align-items: flex-end;
-            gap: 6px;
-        }
-        .quantum-badge-top {
-            background: rgba(138,43,226,0.12);
-            border: 1px solid rgba(138,43,226,0.3);
-            border-radius: 30px;
-            padding: 6px 18px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
-            color: var(--glow-cyan);
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 0 20px rgba(138,43,226,0.15);
-        }
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(0,102,255,0.08);
-            border: 1px solid rgba(0,102,255,0.3);
-            padding: 6px 14px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: var(--glow-cyan);
-        }
-        .status-dot {
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: var(--glow-cyan);
-            box-shadow: 0 0 8px var(--glow-cyan);
-            animation: pulse-dot 1.5s infinite;
-        }
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.3; transform: scale(0.8); }
-        }
-
-        /* ===== NAV TABS ===== */
-        .nav-tabs {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-            margin: 15px 0 25px;
-        }
-        .nav-btn {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            color: var(--text-dim);
-            padding: 8px 22px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-        .nav-btn:hover {
-            background: rgba(0,102,255,0.1);
-            border-color: var(--glow-blue);
-            color: var(--white);
-        }
-        .nav-btn.active {
-            background: linear-gradient(135deg, var(--glow-blue), #0044CC);
-            border-color: var(--glow-blue);
-            color: #fff;
-            box-shadow: 0 0 25px rgba(0,102,255,0.25);
-        }
-
-        /* ===== HERO ===== */
-        .hero {
-            background: linear-gradient(135deg, rgba(0,102,255,0.05) 0%, rgba(204,0,0,0.03) 100%);
-            border: 1px solid rgba(0,102,255,0.15);
-            border-left: 3px solid var(--glow-blue);
-            padding: 28px 36px;
-            margin-bottom: 35px;
-            position: relative;
-            overflow: hidden;
-        }
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, var(--glow-blue), var(--glow-cyan), transparent);
-            opacity: 0.6;
-        }
-        .hero-eyebrow {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
-            letter-spacing: 4px;
-            color: var(--glow-blue);
-            margin-bottom: 6px;
-            text-shadow: 0 0 10px var(--glow-blue);
-            animation: blinkText 2.5s infinite;
-        }
-        .hero-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 44px;
-            letter-spacing: 4px;
-            color: var(--white);
-            line-height: 1.1;
-        }
-        .hero-title .blink-title { color: var(--glow-cyan); }
-        .hero-desc {
-            font-size: 15px;
-            color: var(--text);
-            margin: 12px 0 0;
-            max-width: 700px;
-            line-height: 1.6;
-            font-weight: 300;
-        }
-        .hero-desc strong { color: var(--glow-cyan); }
-
-        /* ===== TABS ===== */
-        .tab-content { display: none; animation: fadeIn 0.4s ease; }
-        .tab-content.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* ===== STATS ===== */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            margin-bottom: 30px;
-        }
-        .stat-card {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            padding: 18px 16px;
-            text-align: center;
-            transition: border-color 0.3s;
-        }
-        .stat-card:hover { border-color: rgba(0,102,255,0.3); }
-        .stat-value {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 32px;
-            letter-spacing: 2px;
-            color: var(--glow-cyan);
-        }
-        .stat-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            letter-spacing: 2px;
-            color: var(--text-dim);
-            margin-top: 4px;
-            text-transform: uppercase;
-        }
-        .stat-sub { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
-
-        /* ===== CARDS ===== */
-        .card {
-            background: var(--panel);
-            border: 1px solid var(--border);
-            padding: 22px 24px;
-            margin-bottom: 20px;
-            transition: border-color 0.3s;
-        }
-        .card:hover { border-color: rgba(0,102,255,0.2); }
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border);
-        }
-        .card-title {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 22px;
-            letter-spacing: 2px;
-            color: var(--white);
-        }
-        .card-title i { color: var(--glow-cyan); margin-right: 8px; }
-
-        /* ===== CHART CONTAINER ===== */
-        .chart-wrapper {
-            position: relative;
-            width: 100%;
-        }
-
-        .chart-container {
-            width: 100%;
-            height: 360px;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid var(--border);
-            border-radius: 8px 8px 0 0;
-            position: relative;
-            overflow: hidden;
-        }
-        #tradingChart {
-            width: 100%;
-            height: 100%;
-            display: block;
-            cursor: crosshair;
-        }
-
-        /* ===== ZOOM CONTROLS ===== */
-        .chart-controls {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid var(--border);
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            padding: 6px 12px;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-        .chart-controls-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .chart-controls-right {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .zoom-btn {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid var(--border);
-            color: var(--text);
-            width: 28px;
-            height: 28px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 14px;
-            font-weight: 700;
-            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        .zoom-btn:hover {
-            background: rgba(0,102,255,0.2);
-            border-color: var(--glow-blue);
-            color: var(--white);
-        }
-        .zoom-btn.active {
-            background: rgba(0,102,255,0.3);
-            border-color: var(--glow-blue);
-            color: var(--glow-cyan);
-        }
-        .zoom-level {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            color: var(--text-dim);
-            min-width: 60px;
-            text-align: center;
-        }
-        .zoom-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            color: var(--text-dim);
-            letter-spacing: 1px;
+            padding: 1.5rem;
+            margin: 0;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(0, 200, 255, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(100, 0, 255, 0.06) 0%, transparent 60%);
         }
 
-        /* ===== TIMELINE SCROLLBAR ===== */
-        .timeline-container {
+        /* ============================================================
+                   LOGIN CARD
+                   ============================================================ */
+        .login-card {
             width: 100%;
-            padding: 4px 0 8px;
-            background: rgba(0,0,0,0.3);
-            border: 1px solid var(--border);
-            border-top: none;
-            border-radius: 0 0 8px 8px;
-            position: relative;
-        }
-        .timeline-slider {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 100%;
-            height: 4px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 2px;
-            outline: none;
-            transition: background 0.3s;
-            cursor: pointer;
-        }
-        .timeline-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            background: var(--glow-blue);
-            cursor: pointer;
-            border: 2px solid rgba(0,102,255,0.3);
-            box-shadow: 0 0 15px rgba(0,102,255,0.3);
-            transition: all 0.2s;
-        }
-        .timeline-slider::-webkit-slider-thumb:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 25px rgba(0,102,255,0.5);
-        }
-        .timeline-labels {
-            display: flex;
-            justify-content: space-between;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 7px;
-            color: var(--text-dim);
-            padding: 2px 4px 0;
+            max-width: 420px;
+            background: rgba(14, 18, 34, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 200, 255, 0.12);
+            border-radius: 24px;
+            padding: 2.5rem 2rem 2rem;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(0, 200, 255, 0.05) inset;
+            transition: border-color 0.3s ease;
         }
 
-        /* ===== CHART LEGEND ===== */
-        .chart-legend {
-            display: flex;
-            gap: 18px;
-            margin: 8px 0 4px;
-            flex-wrap: wrap;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            letter-spacing: 1px;
+        .login-card:hover {
+            border-color: rgba(0, 200, 255, 0.20);
         }
-        .legend-item {
+
+        /* ============================================================
+                   QUANTUM BADGE
+                   ============================================================ */
+        .quantum-badge {
             display: flex;
             align-items: center;
-            gap: 6px;
-            color: var(--text-dim);
-        }
-        .legend-color {
-            width: 16px;
-            height: 3px;
-            border-radius: 2px;
-        }
-        .legend-color.yellow { background: var(--glow-gold); }
-        .legend-color.red { background: var(--glow-red); }
-        .legend-color.blue { background: var(--glow-blue); }
-        .legend-color.trendline { background: #CC0000; height: 4px; border: 1px solid rgba(204,0,0,0.5); }
-
-        /* ===== SIGNAL DISPLAY ===== */
-        .signal-display {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 48px;
-            letter-spacing: 6px;
-            text-align: center;
-            padding: 20px;
-            border: 1px solid var(--border);
-            background: rgba(0,0,0,0.3);
-        }
-        .signal-display.buy { color: var(--glow-cyan); border-color: var(--glow-cyan); }
-        .signal-display.sell { color: var(--glow-red); border-color: var(--glow-red); }
-        .signal-display.hold { color: var(--glow-gold); border-color: var(--glow-gold); }
-
-        .confidence-bar {
-            height: 4px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 4px;
-            margin: 12px 0;
-            overflow: hidden;
-        }
-        .confidence-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--glow-blue), var(--glow-cyan));
-            border-radius: 4px;
-            transition: width 0.5s ease;
-            width: 0%;
-        }
-
-        /* ===== TRENDLINE DRAW MODE ===== */
-        .draw-mode-indicator {
-            display: none;
-            background: rgba(204,0,0,0.15);
-            border: 1px solid var(--glow-red);
-            border-radius: 30px;
-            padding: 4px 14px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            color: var(--glow-red);
-            letter-spacing: 1px;
-        }
-        .draw-mode-indicator.active {
-            display: inline-block;
-            animation: blinkText 1s infinite;
-        }
-
-        /* ===== ALERTS PANEL ===== */
-        .alerts-panel {
-            max-height: 120px;
-            overflow-y: auto;
-            background: rgba(0,0,0,0.3);
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-top: 8px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            color: var(--text-dim);
-        }
-        .alert-item {
-            padding: 4px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.03);
-            display: flex;
-            justify-content: space-between;
-        }
-        .alert-item .time { color: var(--text-dim); font-size: 8px; }
-        .alert-item.breakout { color: var(--glow-cyan); }
-        .alert-item.breakdown { color: var(--glow-red); }
-        .alert-item.signal { color: var(--glow-gold); }
-
-        /* ===== AUTO-TRADE PANEL ===== */
-        .auto-trade-panel {
-            display: none;
-            background: rgba(0,0,0,0.4);
-            border: 1px solid var(--glow-blue);
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-top: 12px;
-        }
-        .auto-trade-panel.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-        .auto-trade-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 4px 0;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
-            color: var(--text-dim);
-        }
-        .auto-trade-row .value {
-            color: var(--glow-cyan);
+            justify-content: center;
+            gap: 0.5rem;
+            background: rgba(0, 200, 255, 0.06);
+            border: 1px solid rgba(0, 200, 255, 0.10);
+            border-radius: 100px;
+            padding: 0.4rem 1rem 0.4rem 0.6rem;
+            margin: 0 auto 1.5rem;
+            width: fit-content;
+            font-size: 0.7rem;
             font-weight: 600;
-        }
-        .auto-trade-row .value.resistance { color: var(--glow-red); }
-        .auto-trade-row .value.support { color: var(--glow-gold); }
-        .btn-trade {
-            background: linear-gradient(135deg, var(--glow-red), #990000);
-            border: none;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 18px;
-            letter-spacing: 2px;
-            color: var(--white);
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
-            margin-top: 10px;
-        }
-        .btn-trade:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 30px rgba(204,0,0,0.4);
-        }
-        .btn-trade:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-        }
-
-        /* ===== TRADES TABLE ===== */
-        .table-container {
-            overflow-x: auto;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 13px;
-        }
-        thead {
-            background: rgba(0,0,0,0.3);
-            position: sticky;
-            top: 0;
-            z-index: 10;
-        }
-        th {
-            padding: 10px 12px;
-            text-align: left;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            letter-spacing: 1px;
-            color: var(--text-dim);
+            letter-spacing: 0.03em;
+            color: #7ad0ff;
             text-transform: uppercase;
         }
-        td {
-            padding: 10px 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.04);
-        }
-        .trade-buy { color: var(--glow-cyan); }
-        .trade-sell { color: var(--glow-red); }
 
-        /* ===== SETTINGS ===== */
-        .settings-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        .quantum-badge .icon {
+            font-size: 1rem;
+            line-height: 1;
         }
-        .form-group { margin-bottom: 14px; }
+
+        /* ============================================================
+                   LOGO / TITLE
+                   ============================================================ */
+        .logo {
+            text-align: center;
+            margin-bottom: 0.25rem;
+        }
+
+        .logo .main {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff 0%, #94d0ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .logo .sub {
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.35);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-top: 0.1rem;
+        }
+
+        .logo .patent {
+            font-size: 0.6rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.20);
+            letter-spacing: 0.05em;
+            margin-top: 0.25rem;
+        }
+
+        /* ============================================================
+                   FORM
+                   ============================================================ */
+        .login-form {
+            margin-top: 1.75rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
         .form-group label {
             display: block;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
-            letter-spacing: 2px;
-            color: var(--text-dim);
-            margin-bottom: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 0.4rem;
         }
+
         .form-group input {
             width: 100%;
-            padding: 10px 14px;
-            background: rgba(0,0,0,0.4);
-            border: 1px solid var(--border);
-            color: var(--white);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        .form-group input:focus {
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            transition: border-color 0.25s ease, background 0.25s ease;
             outline: none;
-            border-color: var(--glow-blue);
-            box-shadow: 0 0 15px rgba(0,102,255,0.1);
         }
-        .btn-save {
-            background: linear-gradient(135deg, var(--glow-blue), #0044CC);
-            border: none;
-            padding: 12px 32px;
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 18px;
-            letter-spacing: 3px;
-            color: var(--white);
-            cursor: pointer;
-            transition: all 0.3s;
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.20);
+            font-weight: 400;
+        }
+
+        .form-group input:focus {
+            border-color: rgba(0, 200, 255, 0.5);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 0 0 3px rgba(0, 200, 255, 0.06);
+        }
+
+        .form-group input:-webkit-autofill {
+            -webkit-box-shadow: 0 0 0 1000px rgba(14, 18, 34, 0.95) inset !important;
+            -webkit-text-fill-color: #ffffff !important;
+        }
+
+        /* ============================================================
+                   BUTTON
+                   ============================================================ */
+        .login-btn {
             width: 100%;
-            margin-top: 8px;
-        }
-        .btn-save:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 30px rgba(0,102,255,0.4);
-        }
-
-        /* ===== FOOTER ===== */
-        .footer {
-            border-top: 1px solid var(--border);
-            padding-top: 24px;
-            margin-top: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 16px;
-        }
-        .footer-left {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            color: var(--text-dim);
-            letter-spacing: 2px;
-            line-height: 2;
-        }
-        .footer-right {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            color: var(--text-dim);
-            letter-spacing: 2px;
-            text-align: right;
-            line-height: 2;
-        }
-        .footer-logos {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-        .footer-logos img {
-            height: 35px;
-            width: auto;
-            opacity: 0.7;
-            transition: opacity 0.3s;
-        }
-        .footer-logos img:hover { opacity: 1; }
-        .footer-quantum {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            color: var(--glow-cyan);
-            letter-spacing: 1px;
+            padding: 0.9rem;
+            margin-top: 0.5rem;
+            background: linear-gradient(135deg, #0088ff, #7000ff);
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            font-family: 'Inter', sans-serif;
+            color: #ffffff;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.25s ease;
+            box-shadow: 0 4px 20px rgba(0, 136, 255, 0.25);
+            letter-spacing: 0.01em;
         }
 
-        /* ===== KEYBOARD HINT ===== */
-        .key-hint {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 7px;
-            color: var(--text-dim);
-            letter-spacing: 1px;
-            opacity: 0.6;
-        }
-        .key-hint kbd {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.08);
-            border-radius: 2px;
-            padding: 0 4px;
-            font-size: 7px;
+        .login-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 30px rgba(0, 136, 255, 0.35);
         }
 
-        /* ===== TOOLTIP ===== */
-        .tooltip {
-            position: absolute;
-            background: rgba(0,0,0,0.9);
-            border: 1px solid var(--glow-blue);
-            border-radius: 6px;
-            padding: 8px 12px;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            color: var(--white);
-            pointer-events: none;
+        .login-btn:active {
+            transform: scale(0.98);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ============================================================
+                   ERROR / STATUS MESSAGES
+                   ============================================================ */
+        .message {
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-align: center;
             display: none;
-            z-index: 100;
-            backdrop-filter: blur(8px);
         }
-        .tooltip.show { display: block; }
 
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 992px) {
-            .stats-row { grid-template-columns: repeat(2, 1fr); }
-            .settings-grid { grid-template-columns: 1fr; }
-            .logo { font-size: 32px; }
-            .hero-title { font-size: 34px; }
-            .logo-img { height: 75px; }
-            .chart-container { height: 250px; }
+        .message.error {
+            display: block;
+            background: rgba(255, 50, 50, 0.10);
+            border: 1px solid rgba(255, 50, 50, 0.15);
+            color: #ff6b6b;
         }
-        @media (max-width: 768px) {
-            .header { flex-direction: column; align-items: center; text-align: center; }
-            .header-right { align-items: center; }
-            .logo-block { flex-direction: column; }
-            .logo-img { height: 65px; }
-            .hero { padding: 20px; }
-            .hero-title { font-size: 28px; }
-            .stats-row { grid-template-columns: 1fr 1fr; gap: 10px; }
-            .footer { flex-direction: column; text-align: center; }
-            .footer-right { text-align: center; }
-            .chart-container { height: 200px; }
-            .signal-display { font-size: 32px; }
-            .chart-controls { flex-direction: column; align-items: stretch; gap: 4px; }
-            .chart-controls-left, .chart-controls-right { justify-content: center; }
-            .auto-trade-panel { padding: 12px; }
+
+        .message.success {
+            display: block;
+            background: rgba(0, 200, 80, 0.08);
+            border: 1px solid rgba(0, 200, 80, 0.12);
+            color: #5cffa0;
         }
+
+        /* ============================================================
+                   LOADING SPINNER (inline inside button)
+                   ============================================================ */
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-top-color: #ffffff;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+            vertical-align: middle;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ============================================================
+                   FOOTER
+                   ============================================================ */
+        .footer {
+            text-align: center;
+            margin-top: 1.75rem;
+            font-size: 0.65rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.15);
+            letter-spacing: 0.05em;
+        }
+
+        .footer .chsh {
+            display: inline-block;
+            background: rgba(0, 200, 255, 0.05);
+            padding: 0.15rem 0.6rem;
+            border-radius: 100px;
+            border: 1px solid rgba(0, 200, 255, 0.05);
+            margin-top: 0.3rem;
+            font-weight: 500;
+            color: rgba(122, 208, 255, 0.5);
+        }
+
+        /* ============================================================
+                   RESPONSIVE
+                   ============================================================ */
         @media (max-width: 480px) {
-            .logo { font-size: 24px; letter-spacing: 2px; }
-            .hero-title { font-size: 22px; }
-            .stat-value { font-size: 24px; }
-            .signal-display { font-size: 28px; }
-            .logo-img { height: 55px; }
-            .card-title { font-size: 18px; }
-            .chart-container { height: 160px; }
+            .login-card {
+                padding: 1.75rem 1.25rem 1.5rem;
+            }
+
+            .logo .main {
+                font-size: 1.5rem;
+            }
+
+            .form-group input {
+                font-size: 0.9rem;
+                padding: 0.7rem 0.9rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="grid-bg"></div>
-    <div class="scan-sweep"></div>
-    <div class="corner corner-tl"></div>
-    <div class="corner corner-tr"></div>
-    <div class="corner corner-bl"></div>
-    <div class="corner corner-br"></div>
 
-    <div class="wrapper">
+    <div class="login-card">
 
-        <!-- ===== HEADER ===== -->
-        <header class="header">
-            <div class="logo-block">
-                <img src="https://i.postimg.cc/VkDpLnxN/KD-LOGO-IMAGE-removebg-preview.png" alt="KD Quantum Trading" class="logo-img" onerror="this.src='https://placehold.co/100x100/0066FF/white?text=KD'">
-                <div class="logo-text-group">
-                    <div class="logo-eyebrow">⚡ QUANTUM TRADING · IBM VERIFIED</div>
-                    <div class="logo">
-                        <span class="blink-title">KD</span> QUANTUM
-                    </div>
-                    <div class="logo-sub">TRADING PLATFORM</div>
-                </div>
-            </div>
-            <div class="header-right">
-                <div class="quantum-badge-top">
-                    <i class="fas fa-shield-alt"></i>
-                    CHSH S=2.76 · 98.4% · SA 2026/05142
-                </div>
-                <div class="status-badge">
-                    <span class="status-dot"></span>
-                    QUANTUM ACTIVE
-                </div>
-                <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);letter-spacing:2px;" id="ts">INITIALIZING...</span>
-            </div>
-        </header>
-
-        <!-- ===== NAV TABS ===== -->
-        <div class="nav-tabs">
-            <button class="nav-btn active" onclick="switchTab('dashboard')">Dashboard</button>
-            <button class="nav-btn" onclick="switchTab('trades')">Trades</button>
-            <button class="nav-btn" onclick="switchTab('settings')">Settings</button>
+        <!-- QUANTUM BADGE -->
+        <div class="quantum-badge">
+            <span class="icon">⚛️</span>
+            CHSH S=2.76 · 98.4% · SA 2026/05142
         </div>
 
-        <!-- ===== HERO ===== -->
-        <section class="hero">
-            <div class="hero-eyebrow blink-title">⚛️ QUANTUM TRADING ENGINE · IBM-VERIFIED</div>
-            <h1 class="hero-title">
-                <span class="blink-title">QUANTUM</span> <span class="glow-blue" style="color:var(--glow-blue);">TRADING</span>
-            </h1>
-            <p class="hero-desc">
-                <strong>IBM-verified · 38% above classical · Patent Pending</strong><br>
-                Powered by CHSH S=2.76 quantum entanglement verification.
-            </p>
-        </section>
-
-        <!-- ===== DASHBOARD TAB ===== -->
-        <div id="tab-dashboard" class="tab-content active">
-            <div class="stats-row">
-                <div class="stat-card">
-                    <div class="stat-value" id="signalDisplay">—</div>
-                    <div class="stat-label">CURRENT SIGNAL</div>
-                    <div class="stat-sub" id="confidenceDisplay">Confidence: —</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value">⚛️</div>
-                    <div class="stat-label">QUANTUM STATUS</div>
-                    <div class="stat-sub" id="quantumDetail">CHSH S=2.76</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="tradeCount">0</div>
-                    <div class="stat-label">TRADES TODAY</div>
-                    <div class="stat-sub" id="winRate">Win Rate: —</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="pnlDisplay">+0.00%</div>
-                    <div class="stat-label">P&L TODAY</div>
-                    <div class="stat-sub" id="pnlSub">—</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title"><i class="fas fa-bolt"></i> SIGNAL</span>
-                    <span class="status-badge" style="font-size:8px;padding:4px 10px;" id="liveSignal">WAITING</span>
-                </div>
-                <div class="signal-display hold" id="signalDisplayLarge">HOLD</div>
-                <div class="confidence-bar">
-                    <div class="confidence-fill" id="confidenceFill" style="width: 0%;"></div>
-                </div>
-                <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;">
-                    <span>QUANTUM CONFIDENCE</span>
-                    <span id="confidencePercent">0%</span>
-                </div>
-            </div>
-
-            <!-- ===== CHART WITH ZOOM + TRENDLINE ===== -->
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title"><i class="fas fa-chart-line"></i> USDCAD · H1</span>
-                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-                        <span style="font-size:10px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;">🔍 ZOOM: <span id="zoomLevelDisplay">60</span> candles</span>
-                        <button class="nav-btn" id="drawTrendlineBtn" style="padding:4px 12px;font-size:10px;border-color:var(--glow-red);color:var(--glow-red);" onclick="toggleDrawMode()">
-                            📐 Trendline
-                        </button>
-                        <span class="draw-mode-indicator" id="drawModeIndicator">🔴 DRAW MODE</span>
-                        <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="resetTrendline()">↺ Reset</button>
-                    </div>
-                </div>
-                <div class="chart-wrapper">
-                    <div class="chart-container" id="chartContainer">
-                        <canvas id="tradingChart"></canvas>
-                        <div class="tooltip" id="tooltip"></div>
-                    </div>
-                    <div class="chart-controls">
-                        <div class="chart-controls-left">
-                            <button class="zoom-btn" id="zoomOutBtn" title="Zoom Out (Ctrl+-)"><i class="fas fa-minus"></i></button>
-                            <span class="zoom-level" id="zoomLevelLabel">60 candles</span>
-                            <button class="zoom-btn" id="zoomInBtn" title="Zoom In (Ctrl++)"><i class="fas fa-plus"></i></button>
-                            <span class="key-hint"><kbd>+</kbd> <kbd>−</kbd> <kbd>←</kbd> <kbd>→</kbd></span>
-                        </div>
-                        <div class="chart-controls-right">
-                            <span class="zoom-label"><i class="fas fa-arrows-alt-h"></i> TIMELINE</span>
-                        </div>
-                    </div>
-                    <div class="timeline-container">
-                        <input type="range" class="timeline-slider" id="timelineSlider" min="0" max="100" value="100">
-                        <div class="timeline-labels">
-                            <span>← Older</span>
-                            <span id="timelineRangeLabel">Latest 60 candles</span>
-                            <span>Newer →</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="chart-legend">
-                    <span class="legend-item"><span class="legend-color yellow"></span> Yellow (Fast)</span>
-                    <span class="legend-item"><span class="legend-color red"></span> Red (Slow)</span>
-                    <span class="legend-item"><span class="legend-color blue"></span> 10-Day Trend</span>
-                    <span class="legend-item"><span class="legend-color trendline"></span> Trendline (S/R)</span>
-                    <span class="legend-item" style="color:var(--text-dim);font-size:8px;">📊 Lines apart = signal</span>
-                </div>
-                <div style="display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;">
-                    <button class="nav-btn active" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('H1')">H1</button>
-                    <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('M15')">M15</button>
-                    <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('H4')">H4</button>
-                    <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="setTimeframe('D1')">D1</button>
-                    <button class="nav-btn" style="padding:4px 12px;font-size:10px;" onclick="analyzeTrend()">🔍 AI Analyze</button>
-                </div>
-            </div>
-
-            <!-- ===== AUTO-TRADE PANEL ===== -->
-            <div class="auto-trade-panel" id="autoTradePanel">
-                <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-                    <span style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--glow-cyan);">📐 TRENDLINE DETECTED</span>
-                    <span style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--text-dim);">⚛️ Quantum Verified</span>
-                </div>
-                <div class="auto-trade-row"><span>Resistance (High)</span><span class="value resistance" id="atResistance">—</span></div>
-                <div class="auto-trade-row"><span>Support (Low)</span><span class="value support" id="atSupport">—</span></div>
-                <div class="auto-trade-row"><span>Entry</span><span class="value" id="atEntry">—</span></div>
-                <div class="auto-trade-row"><span>Stop Loss</span><span class="value" id="atSL">—</span></div>
-                <div class="auto-trade-row"><span>Take Profit</span><span class="value" id="atTP">—</span></div>
-                <div class="auto-trade-row"><span>Confidence</span><span class="value" id="atConfidence">—</span></div>
-                <div class="auto-trade-row"><span>Risk/Reward</span><span class="value" id="atRR">—</span></div>
-                <button class="btn-trade" id="autoTradeBtn" disabled onclick="executeAutoTrade()">
-                    🔴 AUTO-TRADE THIS TREND
-                </button>
-                <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim);text-align:center;margin-top:4px;">
-                    ⚛️ CHSH S=2.76 · 98.4% · SA 2026/05142
-                </div>
-            </div>
-
-            <!-- ===== ALERTS PANEL ===== -->
-            <div class="card" style="margin-top:8px;">
-                <div class="card-header">
-                    <span class="card-title"><i class="fas fa-bell"></i> ALERTS</span>
-                    <span style="font-size:8px;color:var(--text-dim);font-family:'Share Tech Mono',monospace;">Live</span>
-                </div>
-                <div class="alerts-panel" id="alertsPanel">
-                    <div class="alert-item"><span>⚛️ Quantum engine active · CHSH S=2.76</span><span class="time">—</span></div>
-                </div>
-            </div>
+        <!-- LOGO -->
+        <div class="logo">
+            <div class="main">KD QUANTUM</div>
+            <div class="sub">Trading Platform</div>
+            <div class="patent">IBM-Verified · Patent Pending</div>
         </div>
 
-        <!-- ===== TRADES TAB ===== -->
-        <div id="tab-trades" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title"><i class="fas fa-list"></i> TRADE HISTORY</span>
-                    <button class="nav-btn" style="padding:4px 14px;font-size:10px;" onclick="exportTrades()"><i class="fas fa-download"></i> Export</button>
-                </div>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr><th>Time</th><th>Pair</th><th>Type</th><th>Entry</th><th>Exit</th><th>P&L</th><th>Confidence</th></tr>
-                        </thead>
-                        <tbody id="tradesTableBody">
-                            <tr><td colspan="7" style="text-align:center;color:var(--text-dim);font-family:'Share Tech Mono',monospace;font-size:10px;padding:20px;">No trades yet</td></tr>
-                        </tbody>
-                    </table>
-                </div>
+        <!-- LOGIN FORM -->
+        <form class="login-form" id="loginForm" autocomplete="off">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input
+                type="text"
+                id="username"
+                placeholder="Enter your username"
+                required
+                autofocus
+                />
             </div>
-        </div>
 
-        <!-- ===== SETTINGS TAB ===== -->
-        <div id="tab-settings" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <span class="card-title"><i class="fas fa-cog"></i> CONNECTION SETTINGS</span>
-                </div>
-                <div class="settings-grid">
-                    <div class="form-group">
-                        <label>Backend URL</label>
-                        <input type="text" id="backendUrl" value="https://quantum-ai-backend-d26d.onrender.com">
-                    </div>
-                    <div class="form-group">
-                        <label>MT4/MT5 Account ID</label>
-                        <input type="text" id="mt5Account" placeholder="Enter account ID">
-                    </div>
-                    <div class="form-group">
-                        <label>API Key</label>
-                        <input type="password" id="apiKey" placeholder="Enter API key">
-                    </div>
-                    <div class="form-group">
-                        <label>Signal Threshold</label>
-                        <input type="range" id="thresholdSlider" min="0" max="100" value="70" style="width:100%;padding:0;background:transparent;accent-color:var(--glow-blue);">
-                        <span id="thresholdValue" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);">70%</span>
-                    </div>
-                </div>
-                <button class="btn-save" onclick="saveSettings()"><i class="fas fa-save"></i> Save Settings</button>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input
+                type="password"
+                id="password"
+                placeholder="Enter your password"
+                required
+                />
             </div>
-        </div>
 
-        <!-- ===== FOOTER ===== -->
-        <footer class="footer">
-            <div class="footer-left">
-                <div class="footer-logos">
-                    <img src="https://i.postimg.cc/VkDpLnxN/KD-LOGO-IMAGE-removebg-preview.png" alt="KD" onerror="this.style.display='none'">
-                    <img src="https://i.postimg.cc/zXW78GNH/Mind-Tech-Transparent-Logo.png" alt="MindTech" onerror="this.style.display='none'">
-                    <span class="footer-quantum">⚛️ QUANTUM AI</span>
-                </div>
-                <span style="display:block;margin-top:6px;">© 2026 KD QUANTUM TRADING PLATFORM</span>
-            </div>
-            <div class="footer-right">
-                <div class="footer-quantum">
-                    CHSH S=2.76 · 98.4% · SA 2026/05142<br>
-                    IBM Job: d8uhvl4bp3hs738628cg
-                </div>
-                <span style="display:block;margin-top:4px;font-size:8px;color:var(--text-dim);">
-                    BUILT ON BOTLHALE 17 DEEP-TECH
-                </span>
-            </div>
-        </footer>
+            <button type="submit" class="login-btn" id="loginBtn">
+                <span id="btnText">Sign In</span>
+            </button>
+
+            <!-- Message area -->
+            <div class="message" id="message"></div>
+        </form>
+
+        <!-- FOOTER -->
+        <div class="footer">
+            <div class="chsh">⚛️ CHSH S=2.76 · Quantum Verified</div>
+            &copy; 2026 KD Quantum · All rights reserved.
+        </div>
 
     </div>
 
     <script>
-        // ============================================================
-        // KD QUANTUM TRADING PLATFORM — FULL WITH TRENDLINE + CODES
-        // ============================================================
+        (function() {
+            'use strict';
 
-        // ===== TRENDLINE STATE =====
-        let trendData = {
-            resistance: null,
-            support: null,
-            isDrawing: false,
-            points: [],
-            drawnByUser: false,
-            breakoutDetected: false
-        };
+            // ============================================================
+            // DOM REFS
+            // ============================================================
+            const form = document.getElementById('loginForm');
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const loginBtn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+            const messageEl = document.getElementById('message');
 
-        let isDrawMode = false;
-        let alerts = [];
-        let autoTradeReady = false;
+            // ============================================================
+            // HELPERS
+            // ============================================================
 
-        // ===== TIMESTAMP =====
-        function updateTimestamp() {
-            const now = new Date();
-            const ts = now.toISOString().replace('T', ' · ').substring(0, 22) + ' UTC';
-            document.getElementById('ts').textContent = ts;
-        }
-        updateTimestamp();
-        setInterval(updateTimestamp, 1000);
+            /** Show a message (error or success) */
+            function showMessage(text, type) {
+                messageEl.textContent = text;
+                messageEl.className = 'message ' + type;
+                // Auto-hide after 5s for success, keep errors visible
+                if (type === 'success') {
+                    setTimeout(() => {
+                        messageEl.className = 'message';
+                    }, 5000);
+                }
+            }
 
-        // ===== TAB SWITCHING =====
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(`tab-${tab}`).classList.add('active');
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(el => {
-                if (el.textContent.toLowerCase().includes(tab)) el.classList.add('active');
-            });
-            if (tab === 'dashboard') {
-                setTimeout(() => {
-                    if (chartCanvas) {
-                        const rect = chartCanvas.getBoundingClientRect();
-                        chartCanvas.width = rect.width * (window.devicePixelRatio || 1);
-                        chartCanvas.height = rect.height * (window.devicePixelRatio || 1);
-                        ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
-                        drawChart();
+            /** Clear the message */
+            function clearMessage() {
+                messageEl.className = 'message';
+                messageEl.textContent = '';
+            }
+
+            /** Set loading state on button */
+            function setLoading(isLoading) {
+                if (isLoading) {
+                    loginBtn.disabled = true;
+                    btnText.innerHTML = '<span class="spinner"></span> Logging in...';
+                } else {
+                    loginBtn.disabled = false;
+                    btnText.textContent = 'Sign In';
+                }
+            }
+
+            /** Get the API base URL — falls back to current origin */
+            function getApiBase() {
+                // If you're serving the frontend from a different origin than the backend,
+                // set this to your backend URL (e.g., https://your-backend.onrender.com)
+                // For same-origin deployment, just use ''
+                return ''; // or 'https://your-backend.onrender.com'
+            }
+
+            // ============================================================
+            // LOGIN HANDLER
+            // ============================================================
+
+            async function handleLogin(event) {
+                event.preventDefault();
+                clearMessage();
+
+                // 1. Get credentials
+                const username = usernameInput.value.trim();
+                const password = passwordInput.value.trim();
+
+                if (!username || !password) {
+                    showMessage('Please enter both username and password.', 'error');
+                    return;
+                }
+
+                // 2. Disable button, show loading
+                setLoading(true);
+
+                try {
+                    // 3. Build request
+                    const baseUrl = getApiBase();
+                    const url = baseUrl + '/login';
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            username: username,
+                            password: password
+                        })
+                    });
+
+                    // 4. Parse response
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        // Handle HTTP errors (401, 400, 500, etc.)
+                        const errorMsg = data.detail || data.message || 'Login failed. Please try again.';
+                        throw new Error(errorMsg);
                     }
-                }, 300);
-            }
-        }
 
-        // ===== TIMEFRAME =====
-        function setTimeframe(tf) {
-            document.querySelectorAll('.card .nav-btn').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.card .nav-btn').forEach(el => {
-                if (el.textContent === tf) el.classList.add('active');
-            });
-            const volatility = tf === 'M15' ? 0.003 : tf === 'H1' ? 0.002 : tf === 'H4' ? 0.004 : 0.005;
-            chartData = [];
-            let price = 1.4200 + Math.random() * 0.01;
-            for (let i = 0; i < totalDataPoints; i++) {
-                const change = (Math.random() - 0.48) * volatility;
-                price += change;
-                price = Math.max(1.38, Math.min(1.46, price));
-                chartData.push(price);
-            }
-            scrollPosition = totalDataPoints - visibleCandles;
-            document.getElementById('timelineSlider').value = 100;
-            drawChart();
-        }
+                    // 5. Login success — we expect a token
+                    if (data.status === 'success' && data.token) {
+                        // Store the token (localStorage persists across sessions)
+                        localStorage.setItem('quantum_token', data.token);
+                        localStorage.setItem('quantum_username', data.username);
 
-        function resetZoom() {
-            visibleCandles = 60;
-            scrollPosition = Math.max(0, totalDataPoints - visibleCandles);
-            document.getElementById('timelineSlider').value = 100;
-            updateZoomDisplay();
-            drawChart();
-        }
+                        // Show success message briefly
+                        showMessage('✅ Login successful! Redirecting...', 'success');
 
-        // ===== CHART VARIABLES =====
-        let chartCanvas, ctx;
-        let chartData = [];
-        const totalDataPoints = 200;
-        let visibleCandles = 60;
-        let scrollPosition = 0;
-        let dataGenInterval;
+                        // Redirect to the dashboard (same domain)
+                        // You can change this to '/dashboard' or './dashboard.html'
+                        setTimeout(() => {
+                            window.location.href = '/dashboard.html';
+                        }, 800);
 
-        // ===== ZOOM FUNCTIONS =====
-        function zoomIn() {
-            if (visibleCandles > 15) {
-                visibleCandles = Math.max(10, visibleCandles - 5);
-                updateZoomDisplay();
-                drawChart();
-            }
-        }
+                    } else {
+                        // Unexpected success response without token
+                        throw new Error('Invalid server response: missing token.');
+                    }
 
-        function zoomOut() {
-            if (visibleCandles < totalDataPoints) {
-                visibleCandles = Math.min(totalDataPoints, visibleCandles + 5);
-                updateZoomDisplay();
-                drawChart();
-            }
-        }
-
-        function updateZoomDisplay() {
-            document.getElementById('zoomLevelDisplay').textContent = visibleCandles;
-            document.getElementById('zoomLevelLabel').textContent = visibleCandles + ' candles';
-        }
-
-        function updateTimelineRange() {
-            const startIdx = Math.max(0, scrollPosition);
-            const endIdx = Math.min(totalDataPoints, startIdx + visibleCandles);
-            document.getElementById('timelineRangeLabel').textContent = 
-                `Candles ${startIdx + 1}–${endIdx} of ${totalDataPoints}`;
-        }
-
-        // ===== CHART INITIALIZATION =====
-        function initChart() {
-            chartCanvas = document.getElementById('tradingChart');
-            if (!chartCanvas) return;
-            ctx = chartCanvas.getContext('2d');
-            
-            let price = 1.4200 + Math.random() * 0.01;
-            for (let i = 0; i < totalDataPoints; i++) {
-                const change = (Math.random() - 0.48) * 0.002;
-                price += change;
-                price = Math.max(1.38, Math.min(1.46, price));
-                chartData.push(price);
-            }
-            
-            scrollPosition = totalDataPoints - visibleCandles;
-            
-            const rect = chartCanvas.getBoundingClientRect();
-            chartCanvas.width = rect.width * (window.devicePixelRatio || 1);
-            chartCanvas.height = rect.height * (window.devicePixelRatio || 1);
-            ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
-            
-            drawChart();
-            updateZoomDisplay();
-            updateTimelineRange();
-            
-            if (dataGenInterval) clearInterval(dataGenInterval);
-            dataGenInterval = setInterval(addNewDataPoint, 3000);
-
-            // Canvas click for trendline
-            chartCanvas.addEventListener('click', handleCanvasClick);
-            chartCanvas.addEventListener('mousemove', handleCanvasMove);
-        }
-
-        function addNewDataPoint() {
-            const last = chartData[chartData.length - 1];
-            const change = (Math.random() - 0.48) * 0.002;
-            const newPrice = Math.max(1.38, Math.min(1.46, last + change));
-            chartData.push(newPrice);
-            if (chartData.length > totalDataPoints) {
-                chartData.shift();
-                if (scrollPosition > 0) scrollPosition--;
-            }
-            drawChart();
-            // Auto-analyze trend every 10 candles
-            if (chartData.length % 10 === 0) analyzeTrend();
-        }
-
-        // ===== DRAW CHART =====
-        function drawChart() {
-            const canvas = document.getElementById('tradingChart');
-            if (!canvas) return;
-            const rect = canvas.getBoundingClientRect();
-            const width = rect.width;
-            const height = rect.height;
-            
-            ctx.clearRect(0, 0, width, height);
-            
-            const startIdx = Math.max(0, Math.min(scrollPosition, totalDataPoints - visibleCandles));
-            const endIdx = Math.min(totalDataPoints, startIdx + visibleCandles);
-            const visibleData = chartData.slice(startIdx, endIdx);
-            
-            if (visibleData.length < 2) {
-                ctx.fillStyle = '#2d4a5e';
-                ctx.font = '14px "Rajdhani", sans-serif';
-                ctx.textAlign = 'center';
-                ctx.fillText('Loading chart data...', width/2, height/2);
-                return;
-            }
-            
-            let min = Infinity, max = -Infinity;
-            visibleData.forEach(v => {
-                if (v < min) min = v;
-                if (v > max) max = v;
-            });
-            const range = (max - min) * 1.2;
-            const mid = (max + min) / 2;
-            const top = mid + range / 2;
-            const bottom = mid - range / 2;
-            
-            // Moving averages
-            const fastMA = [], slowMA = [], trendMA = [];
-            for (let i = 0; i < visibleData.length; i++) {
-                let fastSum = 0, fastCount = 0;
-                for (let j = Math.max(0, i - 4); j <= i; j++) {
-                    fastSum += visibleData[j];
-                    fastCount++;
-                }
-                fastMA.push(fastCount > 0 ? fastSum / fastCount : visibleData[i]);
-                
-                let slowSum = 0, slowCount = 0;
-                for (let j = Math.max(0, i - 9); j <= i; j++) {
-                    slowSum += visibleData[j];
-                    slowCount++;
-                }
-                slowMA.push(slowCount > 0 ? slowSum / slowCount : visibleData[i]);
-                
-                let trendSum = 0, trendCount = 0;
-                for (let j = Math.max(0, i - 19); j <= i; j++) {
-                    trendSum += visibleData[j];
-                    trendCount++;
-                }
-                trendMA.push(trendCount > 0 ? trendSum / trendCount : visibleData[i]);
-            }
-            
-            // Grid
-            ctx.strokeStyle = 'rgba(255,255,255,0.05)';
-            ctx.lineWidth = 0.5;
-            for (let i = 0; i < 8; i++) {
-                const y = (height / 8) * i;
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(width, y);
-                ctx.stroke();
-            }
-            
-            // Candlesticks
-            const candleWidth = Math.max(2, (width / visibleData.length) * 0.5);
-            const halfWidth = candleWidth / 2;
-            
-            for (let i = 0; i < visibleData.length; i++) {
-                const price = visibleData[i];
-                const prevPrice = i > 0 ? visibleData[i-1] : price;
-                const open = prevPrice;
-                const close = price;
-                const high = Math.max(open, close) + (Math.random() - 0.5) * 0.0008;
-                const low = Math.min(open, close) + (Math.random() - 0.5) * 0.0008;
-                
-                const x = (i / visibleData.length) * width + (width / visibleData.length) * 0.05;
-                const highY = height - ((high - bottom) / (top - bottom)) * height;
-                const lowY = height - ((low - bottom) / (top - bottom)) * height;
-                const openY = height - ((open - bottom) / (top - bottom)) * height;
-                const closeY = height - ((close - bottom) / (top - bottom)) * height;
-                
-                const isGreen = close >= open;
-                ctx.strokeStyle = isGreen ? 'rgba(0,255,136,0.5)' : 'rgba(255,50,50,0.5)';
-                ctx.fillStyle = isGreen ? 'rgba(0,255,136,0.12)' : 'rgba(255,50,50,0.12)';
-                ctx.lineWidth = 0.5;
-                
-                ctx.beginPath();
-                ctx.moveTo(x, highY);
-                ctx.lineTo(x, lowY);
-                ctx.stroke();
-                
-                const bodyTop = Math.min(openY, closeY);
-                const bodyBottom = Math.max(openY, closeY);
-                const bodyHeight = Math.max(1, bodyBottom - bodyTop);
-                ctx.fillRect(x - halfWidth, bodyTop, candleWidth, bodyHeight);
-                ctx.strokeRect(x - halfWidth, bodyTop, candleWidth, bodyHeight);
-            }
-            
-            // Yellow line
-            ctx.beginPath();
-            ctx.strokeStyle = '#FFD700';
-            ctx.lineWidth = 2;
-            for (let i = 0; i < fastMA.length; i++) {
-                const x = (i / fastMA.length) * width + (width / fastMA.length) * 0.05;
-                const y = height - ((fastMA[i] - bottom) / (top - bottom)) * height;
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            
-            // Red line
-            ctx.beginPath();
-            ctx.strokeStyle = '#FF3333';
-            ctx.lineWidth = 2;
-            for (let i = 0; i < slowMA.length; i++) {
-                const x = (i / slowMA.length) * width + (width / slowMA.length) * 0.05;
-                const y = height - ((slowMA[i] - bottom) / (top - bottom)) * height;
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            
-            // 10-Day Trend (blue dashed)
-            ctx.beginPath();
-            ctx.strokeStyle = '#0066FF';
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([5, 5]);
-            for (let i = 0; i < trendMA.length; i++) {
-                const x = (i / trendMA.length) * width + (width / trendMA.length) * 0.05;
-                const y = height - ((trendMA[i] - bottom) / (top - bottom)) * height;
-                if (i === 0) ctx.moveTo(x, y);
-                else ctx.lineTo(x, y);
-            }
-            ctx.stroke();
-            ctx.setLineDash([]);
-            
-            // ===== TRENDLINE (RED) =====
-            if (trendData.resistance && trendData.support) {
-                const resY = height - ((trendData.resistance - bottom) / (top - bottom)) * height;
-                const supY = height - ((trendData.support - bottom) / (top - bottom)) * height;
-                
-                // Trendline connecting resistance to support
-                ctx.beginPath();
-                ctx.strokeStyle = '#CC0000';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([]);
-                ctx.moveTo(0, resY);
-                ctx.lineTo(width, supY);
-                ctx.stroke();
-                
-                // Horizontal levels
-                ctx.setLineDash([4, 4]);
-                ctx.strokeStyle = 'rgba(204, 0, 0, 0.3)';
-                ctx.lineWidth = 1;
-                
-                ctx.beginPath();
-                ctx.moveTo(0, resY);
-                ctx.lineTo(width, resY);
-                ctx.stroke();
-                
-                ctx.beginPath();
-                ctx.moveTo(0, supY);
-                ctx.lineTo(width, supY);
-                ctx.stroke();
-                ctx.setLineDash([]);
-                
-                // Labels
-                ctx.fillStyle = '#CC0000';
-                ctx.font = '9px "Share Tech Mono", monospace';
-                ctx.fillText('🔴 RESISTANCE', 10, resY - 6);
-                ctx.fillText('🔴 SUPPORT', 10, supY + 16);
-            }
-            
-            // Price labels
-            ctx.fillStyle = 'rgba(255,255,255,0.12)';
-            ctx.font = '8px "Share Tech Mono", monospace';
-            const priceLabels = [top, mid, bottom];
-            priceLabels.forEach(p => {
-                const y = height - ((p - bottom) / (top - bottom)) * height;
-                ctx.fillText(p.toFixed(4), width - 55, y + 3);
-                ctx.fillStyle = 'rgba(255,255,255,0.03)';
-                ctx.fillRect(width - 65, y, 60, 1);
-                ctx.fillStyle = 'rgba(255,255,255,0.12)';
-            });
-            
-            ctx.fillStyle = 'rgba(255,255,255,0.06)';
-            ctx.font = '9px "Share Tech Mono", monospace';
-            ctx.fillText('USDCAD', 8, 16);
-            ctx.fillStyle = 'rgba(255,255,255,0.08)';
-            ctx.fillText('H1', 60, 16);
-            
-            ctx.fillStyle = 'rgba(255,255,255,0.07)';
-            ctx.font = '8px "Share Tech Mono", monospace';
-            ctx.fillText('📊 LINES APART = SIGNAL', width - 160, 16);
-            
-            updateTimelineRange();
-        }
-
-        // ===== CANVAS CLICK FOR TRENDLINE =====
-        function handleCanvasClick(e) {
-            if (!isDrawMode) return;
-            
-            const rect = chartCanvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            
-            // Convert click to price level
-            const width = rect.width;
-            const height = rect.height;
-            
-            const startIdx = Math.max(0, Math.min(scrollPosition, totalDataPoints - visibleCandles));
-            const endIdx = Math.min(totalDataPoints, startIdx + visibleCandles);
-            const visibleData = chartData.slice(startIdx, endIdx);
-            
-            let min = Infinity, max = -Infinity;
-            visibleData.forEach(v => {
-                if (v < min) min = v;
-                if (v > max) max = v;
-            });
-            const range = (max - min) * 1.2;
-            const mid = (max + min) / 2;
-            const top = mid + range / 2;
-            const bottom = mid - range / 2;
-            
-            // Convert Y to price
-            const normalizedY = 1 - (y / height);
-            const price = bottom + normalizedY * (top - bottom);
-            
-            // Store point
-            trendData.points.push({ x, y, price });
-            
-            if (trendData.points.length === 1) {
-                trendData.resistance = price;
-                addAlert('📍 Resistance set at ' + price.toFixed(4));
-            } else if (trendData.points.length === 2) {
-                trendData.support = price;
-                addAlert('📍 Support set at ' + price.toFixed(4));
-                trendData.drawnByUser = true;
-                isDrawMode = false;
-                document.getElementById('drawModeIndicator').classList.remove('active');
-                document.getElementById('drawTrendlineBtn').textContent = '📐 Trendline';
-                document.getElementById('drawTrendlineBtn').style.borderColor = 'var(--glow-red)';
-                document.getElementById('drawTrendlineBtn').style.color = 'var(--glow-red)';
-                showAutoTradePanel();
-                drawChart();
-            }
-        }
-
-        function handleCanvasMove(e) {
-            // Could add hover preview for trendline
-        }
-
-        // ===== TOGGLE DRAW MODE =====
-        function toggleDrawMode() {
-            isDrawMode = !isDrawMode;
-            trendData.points = [];
-            if (isDrawMode) {
-                document.getElementById('drawModeIndicator').classList.add('active');
-                document.getElementById('drawTrendlineBtn').textContent = '📍 Click 2 points';
-                document.getElementById('drawTrendlineBtn').style.borderColor = 'var(--glow-cyan)';
-                document.getElementById('drawTrendlineBtn').style.color = 'var(--glow-cyan)';
-                addAlert('🎯 Draw mode: Click RESISTANCE then SUPPORT on the chart');
-            } else {
-                document.getElementById('drawModeIndicator').classList.remove('active');
-                document.getElementById('drawTrendlineBtn').textContent = '📐 Trendline';
-                document.getElementById('drawTrendlineBtn').style.borderColor = 'var(--glow-red)';
-                document.getElementById('drawTrendlineBtn').style.color = 'var(--glow-red)';
-            }
-        }
-
-        // ===== RESET TRENDLINE =====
-        function resetTrendline() {
-            trendData = {
-                resistance: null,
-                support: null,
-                isDrawing: false,
-                points: [],
-                drawnByUser: false,
-                breakoutDetected: false
-            };
-            document.getElementById('autoTradePanel').classList.remove('active');
-            document.getElementById('autoTradeBtn').disabled = true;
-            addAlert('🔄 Trendline reset');
-            drawChart();
-        }
-
-        // ===== AI ANALYZE TREND =====
-        function analyzeTrend() {
-            const prices = chartData.slice(Math.max(0, chartData.length - 60));
-            if (prices.length < 10) return;
-            
-            const highest = Math.max(...prices);
-            const lowest = Math.min(...prices);
-            const lastPrice = prices[prices.length - 1];
-            
-            // If no trendline set by user, AI sets it
-            if (!trendData.drawnByUser) {
-                trendData.resistance = highest;
-                trendData.support = lowest;
-                drawChart();
-                showAutoTradePanel();
-                addAlert('🤖 AI analysis: Resistance ' + highest.toFixed(4) + ' | Support ' + lowest.toFixed(4));
-            }
-            
-            // Check breakout
-            if (trendData.resistance && lastPrice > trendData.resistance) {
-                trendData.resistance = lastPrice;
-                trendData.breakoutDetected = true;
-                addAlert('🚀 BREAKOUT! New resistance: ' + lastPrice.toFixed(4));
-                showAutoTradePanel();
-                drawChart();
-            }
-            
-            if (trendData.support && lastPrice < trendData.support) {
-                trendData.support = lastPrice;
-                trendData.breakoutDetected = true;
-                addAlert('📉 BREAKDOWN! New support: ' + lastPrice.toFixed(4));
-                showAutoTradePanel();
-                drawChart();
-            }
-            
-            // Check "Codes" (Sell signals)
-            checkSellCodes(prices);
-        }
-
-        // ===== CODES SYSTEM (Sell Signals) =====
-        function checkSellCodes(prices) {
-            const lastPrice = prices[prices.length - 1];
-            const fastMA = prices.slice(-5).reduce((a,b) => a+b, 0) / 5;
-            const slowMA = prices.slice(-10).reduce((a,b) => a+b, 0) / 10;
-            const confidence = parseInt(document.getElementById('confidencePercent').textContent) || 0;
-            
-            let sellSignal = false;
-            let reason = '';
-            
-            // Code 1: Price touches resistance and rejects
-            if (trendData.resistance && Math.abs(lastPrice - trendData.resistance) < 0.0005) {
-                sellSignal = true;
-                reason = 'CODE 1: Resistance rejection';
-            }
-            
-            // Code 2: Price breaks support
-            if (trendData.support && lastPrice < trendData.support) {
-                sellSignal = true;
-                reason = 'CODE 2: Support breakdown';
-            }
-            
-            // Code 3: Death cross (Yellow below Red)
-            if (fastMA < slowMA) {
-                sellSignal = true;
-                reason = 'CODE 3: Death cross (Yellow below Red)';
-            }
-            
-            // Code 4: Confidence below 50%
-            if (confidence < 50) {
-                sellSignal = true;
-                reason = 'CODE 4: Low confidence (' + confidence + '%)';
-            }
-            
-            // Code 5: Fakeout (breakout with low volume)
-            if (trendData.breakoutDetected && confidence < 60) {
-                sellSignal = true;
-                reason = 'CODE 5: Fakeout detected';
-                trendData.breakoutDetected = false;
-            }
-            
-            if (sellSignal) {
-                document.getElementById('signalDisplayLarge').textContent = 'SELL';
-                document.getElementById('signalDisplayLarge').className = 'signal-display sell';
-                document.getElementById('liveSignal').textContent = 'SELL';
-                document.getElementById('liveSignal').style.color = '#CC0000';
-                document.getElementById('signalDisplay').textContent = 'SELL';
-                addAlert('🔴 SELL SIGNAL: ' + reason);
-            } else {
-                // If no sell signal, check for buy signal
-                if (fastMA > slowMA && confidence > 60 && trendData.resistance && lastPrice < trendData.resistance) {
-                    document.getElementById('signalDisplayLarge').textContent = 'BUY';
-                    document.getElementById('signalDisplayLarge').className = 'signal-display buy';
-                    document.getElementById('liveSignal').textContent = 'BUY';
-                    document.getElementById('liveSignal').style.color = '#00ffcc';
-                    document.getElementById('signalDisplay').textContent = 'BUY';
+                } catch (error) {
+                    // Show error message
+                    showMessage('❌ ' + error.message, 'error');
+                    // Re-enable the button
+                    setLoading(false);
                 }
             }
-        }
 
-        // ===== SHOW AUTO-TRADE PANEL =====
-        function showAutoTradePanel() {
-            if (!trendData.resistance || !trendData.support) return;
-            
-            const panel = document.getElementById('autoTradePanel');
-            panel.classList.add('active');
-            
-            const lastPrice = chartData[chartData.length - 1];
-            const atr = 0.0015; // Average True Range (simulated)
-            
-            // Calculate trade parameters
-            const entry = lastPrice;
-            const sl = trendData.support - (atr * 0.5);
-            const tp = trendData.resistance + (atr * 1.5);
-            const rr = ((tp - entry) / (entry - sl)).toFixed(2);
-            
-            document.getElementById('atResistance').textContent = trendData.resistance.toFixed(4);
-            document.getElementById('atSupport').textContent = trendData.support.toFixed(4);
-            document.getElementById('atEntry').textContent = entry.toFixed(4);
-            document.getElementById('atSL').textContent = sl.toFixed(4);
-            document.getElementById('atTP').textContent = tp.toFixed(4);
-            document.getElementById('atConfidence').textContent = '92%';
-            document.getElementById('atRR').textContent = rr + ':1';
-            
-            autoTradeReady = true;
-            document.getElementById('autoTradeBtn').disabled = false;
-            document.getElementById('autoTradeBtn').textContent = '🔴 AUTO-TRADE THIS TREND';
-        }
+            // ============================================================
+            // CHECK FOR EXISTING SESSION (optional)
+            // ============================================================
 
-        // ===== EXECUTE AUTO-TRADE =====
-        function executeAutoTrade() {
-            if (!autoTradeReady) return;
-            
-            const entry = document.getElementById('atEntry').textContent;
-            const sl = document.getElementById('atSL').textContent;
-            const tp = document.getElementById('atTP').textContent;
-            
-            // In production, this would call MetaAPI
-            addAlert('✅ AUTO-TRADE EXECUTED: Entry ' + entry + ' | SL ' + sl + ' | TP ' + tp);
-            addAlert('⚛️ Quantum Verified · CHSH S=2.76');
-            
-            // Disable button after trade
-            document.getElementById('autoTradeBtn').disabled = true;
-            document.getElementById('autoTradeBtn').textContent = '✅ TRADE SENT';
-            document.getElementById('autoTradeBtn').style.background = 'linear-gradient(135deg, #00ffcc, #0066FF)';
-            setTimeout(() => {
-                document.getElementById('autoTradeBtn').disabled = false;
-                document.getElementById('autoTradeBtn').textContent = '🔴 AUTO-TRADE THIS TREND';
-                document.getElementById('autoTradeBtn').style.background = 'linear-gradient(135deg, var(--glow-red), #990000)';
-            }, 5000);
-        }
-
-        // ===== ALERTS =====
-        function addAlert(message) {
-            const panel = document.getElementById('alertsPanel');
-            const time = new Date().toLocaleTimeString();
-            const div = document.createElement('div');
-            div.className = 'alert-item';
-            div.innerHTML = '<span>' + message + '</span><span class="time">' + time + '</span>';
-            panel.insertBefore(div, panel.firstChild);
-            
-            // Keep only last 20 alerts
-            while (panel.children.length > 20) {
-                panel.removeChild(panel.lastChild);
-            }
-        }
-
-        // ===== SIGNAL GENERATOR =====
-        function generateSignal() {
-            const signals = ['BUY', 'SELL', 'HOLD'];
-            const weights = [0.35, 0.35, 0.30];
-            let r = Math.random();
-            let cum = 0;
-            let signal = 'HOLD';
-            for (let i = 0; i < signals.length; i++) {
-                cum += weights[i];
-                if (r < cum) { signal = signals[i]; break; }
-            }
-            const confidence = 60 + Math.floor(Math.random() * 35);
-            return { signal, confidence };
-        }
-
-        function updateSignal() {
-            const { signal, confidence } = generateSignal();
-            document.getElementById('signalDisplay').textContent = signal;
-            document.getElementById('signalDisplayLarge').textContent = signal;
-            document.getElementById('confidenceDisplay').textContent = 'Confidence: ' + confidence + '%';
-            document.getElementById('confidencePercent').textContent = confidence + '%';
-            document.getElementById('confidenceFill').style.width = confidence + '%';
-
-            const display = document.getElementById('signalDisplayLarge');
-            display.className = 'signal-display';
-            if (signal === 'BUY') display.classList.add('buy');
-            else if (signal === 'SELL') display.classList.add('sell');
-            else display.classList.add('hold');
-
-            const badge = document.getElementById('liveSignal');
-            badge.textContent = signal;
-            badge.style.color = signal === 'BUY' ? '#00ffcc' : signal === 'SELL' ? '#CC0000' : '#FFD700';
-
-            document.getElementById('tradeCount').textContent = Math.floor(Math.random() * 20) + 1;
-            document.getElementById('winRate').textContent = 'Win Rate: ' + (60 + Math.floor(Math.random() * 30)) + '%';
-            const pnl = (Math.random() - 0.4) * 5;
-            document.getElementById('pnlDisplay').textContent = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%';
-            document.getElementById('pnlDisplay').style.color = pnl >= 0 ? '#00ffcc' : '#CC0000';
-            document.getElementById('pnlSub').textContent = Math.floor(Math.random() * 10) + 1 + ' trades';
-
-            const symbols = ['USDCAD', 'EURUSD', 'GBPUSD', 'USDJPY'];
-            const types = ['BUY', 'SELL'];
-            let html = '';
-            for (let i = 0; i < 5; i++) {
-                const type = types[Math.floor(Math.random() * 2)];
-                const entry = (1.40 + Math.random() * 0.06).toFixed(5);
-                const exit = (parseFloat(entry) + (Math.random() - 0.5) * 0.03).toFixed(5);
-                const pnlVal = ((parseFloat(exit) - parseFloat(entry)) / parseFloat(entry) * 100 * (type === 'BUY' ? 1 : -1));
-                const time = new Date(Date.now() - i * 3600000).toLocaleTimeString();
-                html += `<tr>
-                    <td>${time}</td>
-                    <td>${symbols[Math.floor(Math.random() * 4)]}</td>
-                    <td class="${type === 'BUY' ? 'trade-buy' : 'trade-sell'}">${type}</td>
-                    <td>${entry}</td>
-                    <td>${exit}</td>
-                    <td style="color:${pnlVal >= 0 ? '#00ffcc' : '#CC0000'}">${pnlVal >= 0 ? '+' : ''}${pnlVal.toFixed(2)}%</td>
-                    <td>${60 + Math.floor(Math.random() * 35)}%</td>
-                </tr>`;
-            }
-            document.getElementById('tradesTableBody').innerHTML = html;
-        }
-
-        // ===== SETTINGS =====
-        function saveSettings() {
-            const url = document.getElementById('backendUrl').value;
-            localStorage.setItem('backendUrl', url);
-            alert('✅ Settings saved!');
-        }
-
-        function exportTrades() {
-            alert('📊 Exporting trades...');
-        }
-
-        // ===== KEYBOARD SHORTCUTS =====
-        document.addEventListener('keydown', function(e) {
-            if (e.key === '+' || (e.ctrlKey && e.key === '=')) {
-                e.preventDefault();
-                zoomIn();
-            } else if (e.key === '-' || (e.ctrlKey && e.key === '-')) {
-                e.preventDefault();
-                zoomOut();
-            } else if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                const slider = document.getElementById('timelineSlider');
-                const newVal = Math.max(0, parseFloat(slider.value) - 5);
-                slider.value = newVal;
-                const progress = newVal / 100;
-                scrollPosition = Math.max(0, Math.round((totalDataPoints - visibleCandles) * (1 - progress / 1)));
-                drawChart();
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                const slider = document.getElementById('timelineSlider');
-                const newVal = Math.min(100, parseFloat(slider.value) + 5);
-                slider.value = newVal;
-                const progress = newVal / 100;
-                scrollPosition = Math.max(0, Math.round((totalDataPoints - visibleCandles) * (1 - progress / 1)));
-                drawChart();
-            } else if (e.key === 'd' || e.key === 'D') {
-                toggleDrawMode();
-            }
-        });
-
-        // ===== TIMELINE SLIDER =====
-        document.getElementById('timelineSlider').addEventListener('input', function() {
-            const progress = this.value / 100;
-            const maxScroll = totalDataPoints - visibleCandles;
-            scrollPosition = Math.max(0, Math.round(maxScroll * (1 - progress)));
-            drawChart();
-        });
-
-        // ===== ZOOM BUTTONS =====
-        document.getElementById('zoomInBtn').addEventListener('click', zoomIn);
-        document.getElementById('zoomOutBtn').addEventListener('click', zoomOut);
-
-        // ===== THRESHOLD SLIDER =====
-        document.getElementById('thresholdSlider').addEventListener('input', function() {
-            document.getElementById('thresholdValue').textContent = this.value + '%';
-        });
-
-        // ===== INIT =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const saved = localStorage.getItem('backendUrl');
-            if (saved) document.getElementById('backendUrl').value = saved;
-            
-            updateSignal();
-            setInterval(updateSignal, 10000);
-            document.getElementById('quantumDetail').textContent = 'CHSH S=2.76 · 98.4%';
-            
-            // Initial AI analysis
-            setTimeout(() => {
-                analyzeTrend();
-                addAlert('⚛️ KD Quantum Trading Platform · Online');
-                addAlert('📊 CHSH S=2.76 · 38% above classical');
-                addAlert('📈 Draw a trendline or wait for AI analysis');
-            }, 500);
-            
-            setTimeout(initChart, 100);
-            
-            window.addEventListener('resize', function() {
-                if (chartCanvas) {
-                    const rect = chartCanvas.getBoundingClientRect();
-                    chartCanvas.width = rect.width * (window.devicePixelRatio || 1);
-                    chartCanvas.height = rect.height * (window.devicePixelRatio || 1);
-                    ctx.scale(window.devicePixelRatio || 1, window.devicePixelRatio || 1);
-                    drawChart();
+            function checkExistingSession() {
+                const token = localStorage.getItem('quantum_token');
+                if (token) {
+                    // Optionally, you can redirect to dashboard immediately
+                    // if you want to skip the login page for returning users.
+                    // For security, you might want to verify the token first.
+                    // For now, we'll just keep the user on the login page.
+                    // Uncomment the next lines to auto-redirect:
+                    // window.location.href = '/dashboard.html';
                 }
-            });
-        });
+            }
 
-        console.log('⚛️ KD QUANTUM TRADING PLATFORM · FULL');
-        console.log('   📐 Trendline draw mode: Click "Trendline" then click chart');
-        console.log('   🔍 Zoom: + / - buttons | Keyboard: +, -, ←, →');
-        console.log('   📊 MT4-style chart with Yellow/Red/Blue lines');
-        console.log('   🔴 "Codes" system: 5 sell conditions');
-        console.log('   ⚛️ CHSH S=2.76 · 38% above classical');
-        console.log('   Patent: SA 2026/05142');
-        console.log('   IBM Job: d8uhvl4bp3hs738628cg');
+            // ============================================================
+            // EVENT LISTENERS
+            // ============================================================
+
+            form.addEventListener('submit', handleLogin);
+
+            // Clear error when user starts typing
+            usernameInput.addEventListener('input', clearMessage);
+            passwordInput.addEventListener('input', clearMessage);
+
+            // ============================================================
+            // INIT
+            // ============================================================
+
+            // Check if already logged in (optional)
+            checkExistingSession();
+
+            // Focus the username field on load
+            usernameInput.focus();
+
+            console.log('🔐 KD Quantum Login ready — CHSH S=2.76');
+
+        })();
     </script>
+
 </body>
 </html>
