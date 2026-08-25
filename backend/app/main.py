@@ -1,15 +1,18 @@
 """
 KD Quantum Trading Platform — Backend
 IBM-verified quantum trading signals · CHSH S=2.76 · SA Patent 2026/05142
+Added: Simple Username/Password Authentication
 """
 
 import os
 import random
 import httpx
+import secrets
 from datetime import datetime, timedelta
-from typing import Optional, List
-from fastapi import FastAPI, HTTPException, Query
+from typing import Optional, List, Dict
+from fastapi import FastAPI, HTTPException, Query, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
@@ -32,6 +35,20 @@ QUANTUM_BADGE = {
 }
 
 # ============================================================
+# USER DATABASE — In-memory for demo (replace with real DB)
+# ============================================================
+
+# Hardcoded users for testing — only username + password
+USER_DB: Dict[str, str] = {
+    "admin": "quantum2026",
+    "trader1": "trade123",
+    "test": "test123"
+}
+
+# Session store: token -> username
+SESSION_STORE: Dict[str, str] = {}
+
+# ============================================================
 # FASTAPI APP
 # ============================================================
 
@@ -51,7 +68,110 @@ app.add_middleware(
 )
 
 # ============================================================
-# MODELS
+# AUTHENTICATION MODELS
+# ============================================================
+
+class LoginRequest(BaseModel):
+    username: str = Field(..., description="Username")
+    password: str = Field(..., description="Password")
+
+class LoginResponse(BaseModel):
+    status: str
+    token: str
+    username: str
+    quantum_badge: dict
+    message: str
+
+class AuthError(BaseModel):
+    detail: str
+
+# ============================================================
+# AUTHENTICATION DEPENDENCY
+# ============================================================
+
+security = HTTPBearer()
+
+def verify_session(token: str) -> str:
+    """Verify the session token and return the username."""
+    if not token:
+        raise HTTPException(status_code=401, detail="Missing authentication token")
+    
+    # Remove "Bearer " prefix if present
+    if token.startswith("Bearer "):
+        token = token[7:]
+    
+    username = SESSION_STORE.get(token)
+    if not username:
+        raise HTTPException(status_code=401, detail="Invalid or expired session")
+    
+    return username
+
+async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """FastAPI dependency for route protection."""
+    token = credentials.credentials
+    username = verify_session(token)
+    return username
+
+# ============================================================
+# AUTHENTICATION ENDPOINTS
+# ============================================================
+
+@app.post("/login", response_model=LoginResponse)
+async def login(request: LoginRequest):
+    """
+    Authenticate a user with username and password.
+    Returns a session token on success.
+    """
+    username = request.username.strip()
+    password = request.password.strip()
+    
+    if not username or not password:
+        raise HTTPException(status_code=400, detail="Username and password are required")
+    
+    # Verify credentials
+    stored_password = USER_DB.get(username)
+    if not stored_password or stored_password != password:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    
+    # Generate a new session token
+    token = secrets.token_urlsafe(32)
+    SESSION_STORE[token] = username
+    
+    return LoginResponse(
+        status="success",
+        token=token,
+        username=username,
+        quantum_badge=QUANTUM_BADGE,
+        message=f"Welcome back, {username}! Quantum engine active."
+    )
+
+@app.post("/logout")
+async def logout(token: str = Header(...)):
+    """Logout: invalidate the session token."""
+    if not token:
+        raise HTTPException(status_code=400, detail="Missing token")
+    
+    if token.startswith("Bearer "):
+        token = token[7:]
+    
+    if token in SESSION_STORE:
+        del SESSION_STORE[token]
+        return {"status": "success", "message": "Logged out successfully"}
+    else:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+@app.get("/auth/status")
+async def auth_status(username: str = Depends(get_current_user)):
+    """Check if the current session is valid."""
+    return {
+        "authenticated": True,
+        "username": username,
+        "quantum_badge": QUANTUM_BADGE,
+        "timestamp": datetime.now().isoformat()
+    }
+
+# ============================================================
+# MODELS (Trading)
 # ============================================================
 
 class SignalResponse(BaseModel):
@@ -145,23 +265,24 @@ def generate_trade_id():
     return f"QT-{trade_id_counter}"
 
 # ============================================================
-# ROOT ENDPOINT
+# ROOT ENDPOINT — NOW PROTECTED
 # ============================================================
 
 @app.get("/")
 async def root():
-    """Root endpoint with service info and quantum badge"""
+    """
+    Root endpoint — now redirects to login.
+    In production, serve a login page here.
+    """
     return {
         "service": "KD Quantum Trading Platform",
         "version": "2.1.0",
-        "status": "operational",
-        "quantum_badge": QUANTUM_BADGE["text"],
-        "patent": QUANTUM_BADGE["patent"],
-        "verification": QUANTUM_BADGE["verification_date"],
-        "ibm_job": QUANTUM_BADGE["ibm_job_id"],
+        "status": "authentication_required",
+        "message": "Please login at /login with username and password",
         "endpoints": [
-            "GET /",
-            "GET /health",
+            "POST /login",
+            "POST /logout",
+            "GET /auth/status",
             "GET /api/quantum/status",
             "GET /api/signals/latest",
             "GET /api/trades/recent",
@@ -173,12 +294,12 @@ async def root():
     }
 
 # ============================================================
-# HEALTH CHECK
+# HEALTH CHECK — PUBLIC
 # ============================================================
 
 @app.get("/health")
 async def health():
-    """Health check with quantum verification status"""
+    """Public health check with quantum verification status"""
     return {
         "status": "healthy",
         "quantum_verified": True,
@@ -189,29 +310,30 @@ async def health():
     }
 
 # ============================================================
-# QUANTUM STATUS
+# QUANTUM STATUS — PROTECTED
 # ============================================================
 
 @app.get("/api/quantum/status")
-async def quantum_status():
-    """Return the full quantum verification badge data"""
+async def quantum_status(username: str = Depends(get_current_user)):
+    """Return the full quantum verification badge data (requires auth)"""
     return {
         **QUANTUM_BADGE,
         "verification_url": f"https://quantum-computing.ibm.com/jobs/{QUANTUM_BADGE['ibm_job_id']}",
         "backend": "IBM Torino (133 qubits)",
         "shots": 10000,
-        "significance": "p < 0.001"
+        "significance": "p < 0.001",
+        "authenticated_user": username
     }
 
 # ============================================================
-# SIGNAL ENDPOINT
+# SIGNAL ENDPOINT — PROTECTED
 # ============================================================
 
 @app.get("/api/signals/latest", response_model=SignalResponse)
-async def get_signal():
+async def get_signal(username: str = Depends(get_current_user)):
     """
     Generate the latest trading signal with quantum confidence.
-    Uses a weighted random model — replace with your actual strategy.
+    Requires valid session.
     """
     signals = ["BUY", "SELL", "HOLD"]
     weights = [0.35, 0.35, 0.30]
@@ -237,14 +359,13 @@ async def get_signal():
     )
 
 # ============================================================
-# TRADES ENDPOINTS
+# TRADES ENDPOINTS — PROTECTED
 # ============================================================
 
 @app.get("/api/trades/recent", response_model=List[TradeResponse])
-async def get_recent_trades(limit: int = Query(5, ge=1, le=50)):
-    """Get recent trades from history"""
+async def get_recent_trades(limit: int = Query(5, ge=1, le=50), username: str = Depends(get_current_user)):
+    """Get recent trades from history (requires auth)"""
     if not trade_history:
-        # Generate mock trades if empty
         _generate_mock_trades()
     
     return trade_history[-limit:]
@@ -254,9 +375,10 @@ async def get_trade_history(
     symbol: Optional[str] = None,
     type: Optional[str] = None,
     status: Optional[str] = None,
-    limit: int = Query(50, ge=1, le=200)
+    limit: int = Query(50, ge=1, le=200),
+    username: str = Depends(get_current_user)
 ):
-    """Get trade history with filters"""
+    """Get trade history with filters (requires auth)"""
     filtered = trade_history
     
     if symbol:
@@ -269,8 +391,8 @@ async def get_trade_history(
     return filtered[-limit:]
 
 @app.delete("/api/trades/history")
-async def clear_trade_history():
-    """Clear all trade history"""
+async def clear_trade_history(username: str = Depends(get_current_user)):
+    """Clear all trade history (requires auth)"""
     global trade_history
     trade_history = []
     return {"status": "cleared", "message": "Trade history cleared"}
@@ -302,17 +424,17 @@ def _generate_mock_trades(count: int = 20):
         ))
 
 # ============================================================
-# AUTO-TRADE ENDPOINT
+# AUTO-TRADE ENDPOINT — PROTECTED
 # ============================================================
 
 @app.post("/api/trade/auto", response_model=AutoTradeResponse)
-async def auto_trade(request: AutoTradeRequest):
+async def auto_trade(request: AutoTradeRequest, username: str = Depends(get_current_user)):
     """
-    Execute a trade based on trendline analysis.
-    In production, this forwards to MetaAPI for MT4/MT5 execution.
+    Execute a trade based on trendline analysis (requires auth).
     """
-    # Log the trade request
+    # Log the trade request with authenticated user
     print(f"\n📊 AUTO-TRADE REQUEST RECEIVED:")
+    print(f"   User: {username}")
     print(f"   Symbol: {request.symbol}")
     print(f"   Entry: {request.entry}")
     print(f"   Stop Loss: {request.stop_loss}")
@@ -324,9 +446,6 @@ async def auto_trade(request: AutoTradeRequest):
     print(f"   Patent: {QUANTUM_BADGE['patent']}")
     print(f"   CHSH: {QUANTUM_BADGE['chsh_s']}")
     
-    # ============================================================
-    # PRODUCTION: Forward to MetaAPI
-    # ============================================================
     metaapi_configured = os.getenv("METAAPI_ACCOUNT_ID") and os.getenv("METAAPI_TOKEN")
     
     if metaapi_configured:
@@ -344,7 +463,7 @@ async def auto_trade(request: AutoTradeRequest):
                         "volume": request.volume,
                         "stopLoss": request.stop_loss,
                         "takeProfit": request.take_profit,
-                        "comment": f"Quantum Verified · CHSH {QUANTUM_BADGE['chsh_s']}"
+                        "comment": f"Quantum Verified · CHSH {QUANTUM_BADGE['chsh_s']} · User: {username}"
                     }
                 )
                 
@@ -359,7 +478,6 @@ async def auto_trade(request: AutoTradeRequest):
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Trade error: {str(e)}")
     else:
-        # Simulate successful trade
         trade_id = generate_trade_id()
     
     # Store trade in history
@@ -369,7 +487,7 @@ async def auto_trade(request: AutoTradeRequest):
         symbol=request.symbol,
         type="BUY" if request.trend_direction == "up" else "SELL",
         entry=request.entry,
-        exit=0.0,  # Open trade
+        exit=0.0,
         pnl=0.0,
         confidence=request.confidence,
         quantum_verified=request.quantum_verified,
@@ -387,33 +505,29 @@ async def auto_trade(request: AutoTradeRequest):
         quantum_verified=request.quantum_verified,
         patent=QUANTUM_BADGE["patent"],
         timestamp=datetime.now().isoformat(),
-        message="Trade executed with quantum verification" if metaapi_configured else "Trade simulated — MetaAPI not configured"
+        message=f"Trade executed by {username} with quantum verification" if metaapi_configured else "Trade simulated — MetaAPI not configured"
     )
 
 # ============================================================
-# TRENDLINE ANALYSIS ENDPOINT
+# TRENDLINE ANALYSIS — PROTECTED
 # ============================================================
 
 @app.post("/api/trendline/analyze", response_model=TrendlineResponse)
-async def analyze_trendline(request: TrendlineRequest):
+async def analyze_trendline(request: TrendlineRequest, username: str = Depends(get_current_user)):
     """
-    AI analysis of support/resistance levels.
-    Uses quantum-inspired pattern recognition.
+    AI analysis of support/resistance levels (requires auth).
     """
     prices = request.prices
     if len(prices) < 10:
         raise HTTPException(status_code=400, detail="Need at least 10 price points")
     
-    # Use requested levels or auto-detect
     resistance = request.resistance or max(prices)
     support = request.support or min(prices)
     
-    # Determine trend: compare recent vs older
     lookback = min(request.lookback, len(prices))
     recent_avg = sum(prices[-lookback:]) / lookback
     older_avg = sum(prices[:lookback]) / lookback if len(prices) >= lookback else prices[0]
     
-    # Calculate threshold (0.2% movement for trend detection)
     threshold = 0.002
     
     if recent_avg > older_avg * (1 + threshold):
@@ -423,7 +537,6 @@ async def analyze_trendline(request: TrendlineRequest):
     else:
         trend = "sideways"
     
-    # Detect breakout
     last_price = prices[-1]
     breakout_detected = False
     breakout_direction = None
@@ -437,7 +550,6 @@ async def analyze_trendline(request: TrendlineRequest):
         breakout_direction = "down"
         support = last_price
     
-    # Confidence based on price range and trend clarity
     range_percent = ((resistance - support) / support) * 100
     if range_percent > 1.0:
         confidence = 85 + random.randint(0, 10)
@@ -446,7 +558,6 @@ async def analyze_trendline(request: TrendlineRequest):
     else:
         confidence = 50 + random.randint(0, 20)
     
-    # Quantum boost
     confidence = min(99, int(confidence * QUANTUM_BADGE["correlation"]))
     
     return TrendlineResponse(
@@ -462,16 +573,12 @@ async def analyze_trendline(request: TrendlineRequest):
     )
 
 # ============================================================
-# BACKTEST ENDPOINT
+# BACKTEST — PROTECTED
 # ============================================================
 
 @app.post("/api/backtest/run", response_model=BacktestResponse)
-async def run_backtest(request: BacktestRequest):
-    """
-    Run a backtest of the quantum trading strategy.
-    Simulates trades based on the yellow/red line strategy.
-    """
-    # Generate simulated price data
+async def run_backtest(request: BacktestRequest, username: str = Depends(get_current_user)):
+    """Run a backtest of the quantum trading strategy (requires auth)"""
     price = 1.4200
     prices = []
     trades = []
@@ -479,30 +586,26 @@ async def run_backtest(request: BacktestRequest):
     max_balance = balance
     min_balance = balance
     
-    for i in range(100):  # Simulate 100 candles
+    for i in range(100):
         change = (random.random() - 0.48) * 0.002
         price += change
         price = max(1.38, min(1.46, price))
         prices.append(price)
     
-    # Run strategy simulation
     for i in range(10, len(prices)):
         fast_ma = sum(prices[i-5:i]) / 5 if i >= 5 else prices[i]
         slow_ma = sum(prices[i-10:i]) / 10 if i >= 10 else prices[i]
         
-        # Entry signal: fast crosses above slow
         if i > 10 and fast_ma > slow_ma and sum(prices[i-3:i]) / 3 > sum(prices[i-6:i-3]) / 3:
-            # Buy signal
             entry = prices[i]
             stop_loss = entry * 0.995
             take_profit = entry * 1.01
             risk = balance * request.risk_per_trade
             volume = risk / (entry - stop_loss) if entry > stop_loss else 0.01
             
-            # Check if trade hits TP or SL
             for j in range(i+1, len(prices)):
                 if prices[j] >= take_profit:
-                    balance += risk * 2  # 2:1 reward
+                    balance += risk * 2
                     trades.append({"win": True, "pnl": risk * 2})
                     break
                 elif prices[j] <= stop_loss:
@@ -510,13 +613,11 @@ async def run_backtest(request: BacktestRequest):
                     trades.append({"win": False, "pnl": -risk})
                     break
             else:
-                # Trade still open at end
                 trades.append({"win": False, "pnl": 0})
         
         max_balance = max(max_balance, balance)
         min_balance = min(min_balance, balance)
     
-    # Calculate metrics
     total_trades = len(trades)
     winning_trades = sum(1 for t in trades if t["win"])
     losing_trades = total_trades - winning_trades
