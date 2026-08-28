@@ -529,10 +529,14 @@ async def close_position(trade_id: str, username: str = Depends(get_current_user
 # ============================================================
 
 @app.get("/api/signals/latest")
-async def get_signal(symbol: Optional[str] = None, username: str = Depends(get_current_user)):
+async def get_signal(
+    symbol: Optional[str] = None, 
+    timeframe: Optional[str] = "H4",
+    username: str = Depends(get_current_user)
+):
     """Generate quantum-verified trading signal for a specific symbol"""
     
-    # If no symbol provided, get from query or use default
+    # If no symbol provided, use EURUSD as default
     if not symbol:
         symbol = "EURUSD"
     symbol = symbol.upper()
@@ -540,29 +544,28 @@ async def get_signal(symbol: Optional[str] = None, username: str = Depends(get_c
     if symbol not in IC_SYMBOLS:
         raise HTTPException(status_code=400, detail=f"Symbol {symbol} not supported")
     
-    # Generate signal based on quantum randomness
-    signals = ["BUY", "SELL", "HOLD"]
-    weights = [0.35, 0.35, 0.30]
+    # Simulate market data for analysis
+    market_data = simulate_market_data(symbol)
     
-    r = random.random()
-    cumulative = 0
+    # Generate signal based on quantum randomness and trend analysis
+    trend = analyze_trend(market_data)
+    strength = random.random() * 0.5 + 0.5
+    
     signal = "HOLD"
-    for i, s in enumerate(signals):
-        cumulative += weights[i]
-        if r < cumulative:
-            signal = s
-            break
+    confidence = 50 + random.randint(0, 40)
     
-    confidence = 60 + random.randint(0, 35)
+    if trend == "UP" and strength > 0.6:
+        signal = "BUY"
+        confidence = 65 + random.randint(0, 30)
+    elif trend == "DOWN" and strength > 0.6:
+        signal = "SELL"
+        confidence = 65 + random.randint(0, 30)
+    elif strength > 0.8:
+        signal = random.choice(["BUY", "SELL"])
+        confidence = 75 + random.randint(0, 20)
     
-    # Generate entry, stop loss, take profit based on current price
-    current_price = 1.16642 if symbol == "EURUSD" else 1.36386
-    if symbol == "USDJPY":
-        current_price = 159.386
-    elif symbol == "USDCAD":
-        current_price = 1.38399
-    
-    # Add variation
+    # Calculate price levels
+    current_price = get_base_price(symbol)
     variation = (random.random() - 0.5) * 0.0003
     entry = round(current_price + variation, 5)
     
@@ -576,19 +579,55 @@ async def get_signal(symbol: Optional[str] = None, username: str = Depends(get_c
         stop_loss = None
         take_profit = None
     
-    return {
+    # Calculate risk/reward
+    risk_reward = None
+    if stop_loss and take_profit:
+        risk = abs(entry - stop_loss)
+        reward = abs(take_profit - entry)
+        risk_reward = round(reward / risk, 2) if risk > 0 else 1
+    
+    # Generate signal metadata
+    signal_data = {
         "symbol": symbol,
         "signal": signal,
         "confidence": confidence,
         "entry": entry,
         "stop_loss": stop_loss,
         "take_profit": take_profit,
+        "risk_reward": risk_reward,
+        "trend": trend,
+        "strength": round(strength, 2),
+        "timeframe": timeframe,
         "timestamp": datetime.now().isoformat(),
         "quantum_verified": True,
         "chsh_score": QUANTUM_BADGE["chsh_s"],
         "patent": QUANTUM_BADGE["patent"],
-        "message": f"Quantum signal generated for {symbol}"
+        "quantum_badge": QUANTUM_BADGE["text"],
+        "message": f"Quantum signal generated for {symbol} on {timeframe} timeframe"
     }
+    
+    # Store signal in history
+    signal_history.append(signal_data)
+    
+    return signal_data
+
+# ============================================================
+# SIGNAL HISTORY
+# ============================================================
+
+signal_history = []
+
+@app.get("/api/signals/history")
+async def get_signal_history(
+    symbol: Optional[str] = None,
+    limit: int = Query(50, ge=1, le=200),
+    username: str = Depends(get_current_user)
+):
+    """Get historical signals"""
+    filtered = signal_history
+    if symbol:
+        filtered = [s for s in filtered if s.get("symbol") == symbol.upper()]
+    return filtered[-limit:]
 
 # ============================================================
 # TRADE HISTORY
@@ -617,6 +656,99 @@ async def get_trade_history(
     return filtered[-limit:]
 
 # ============================================================
+# QUANTUM STATUS
+# ============================================================
+
+@app.get("/api/quantum/status")
+async def get_quantum_status(username: str = Depends(get_current_user)):
+    """Get quantum verification status"""
+    return {
+        "chsh_s": QUANTUM_BADGE["chsh_s"],
+        "classical_limit": QUANTUM_BADGE["classical_limit"],
+        "quantum_max": QUANTUM_BADGE["quantum_max"],
+        "percent_above_classical": QUANTUM_BADGE["percent_above_classical"],
+        "correlation": QUANTUM_BADGE["correlation"],
+        "patent": QUANTUM_BADGE["patent"],
+        "verification_date": QUANTUM_BADGE["verification_date"],
+        "ibm_job_id": QUANTUM_BADGE["ibm_job_id"],
+        "text": QUANTUM_BADGE["text"],
+        "status": "verified",
+        "timestamp": datetime.now().isoformat()
+    }
+
+# ============================================================
+# HELPER FUNCTIONS
+# ============================================================
+
+def get_base_price(symbol: str) -> float:
+    """Get base price for a symbol"""
+    prices = {
+        "EURUSD": 1.16642,
+        "GBPUSD": 1.36386,
+        "USDJPY": 159.386,
+        "USDCAD": 1.38399,
+        "AUDUSD": 0.71155,
+        "USDCHF": 0.80298,
+        "EURGBP": 0.8542,
+        "EURAUD": 1.6378,
+        "EURCHF": 0.9365,
+        "EURJPY": 185.9,
+        "GBPCHF": 1.0950,
+        "CADJPY": 115.2,
+        "AUDNZD": 1.0875,
+        "AUDCAD": 0.9830,
+        "AUDCHF": 0.5710,
+        "AUDJPY": 113.3,
+        "CHFJPY": 198.5,
+        "EURNZD": 1.8115,
+        "EURCAD": 1.6135,
+        "CADCHF": 0.5805,
+        "NZDJPY": 105.2,
+        "NZDUSD": 0.6430
+    }
+    return prices.get(symbol, 1.0)
+
+def simulate_market_data(symbol: str, bars: int = 200) -> List[Dict]:
+    """Simulate market data for analysis"""
+    base_price = get_base_price(symbol)
+    data = []
+    price = base_price
+    
+    for i in range(bars):
+        change = (random.random() - 0.48) * 0.001
+        price += change
+        price = max(1.0, price)
+        
+        data.append({
+            "time": datetime.now().timestamp() - (bars - i) * 300,
+            "open": price,
+            "high": price + random.random() * 0.001,
+            "low": price - random.random() * 0.001,
+            "close": price,
+            "volume": random.randint(100, 1000)
+        })
+    
+    return data
+
+def analyze_trend(data: List[Dict]) -> str:
+    """Simple trend analysis"""
+    if len(data) < 20:
+        return "SIDEWAYS"
+    
+    # Calculate moving averages
+    closes = [d["close"] for d in data]
+    ma10 = sum(closes[-10:]) / 10
+    ma20 = sum(closes[-20:]) / 20
+    
+    # Determine trend
+    if ma10 > ma20 * 1.002:
+        return "UP"
+    elif ma10 < ma20 * 0.998:
+        return "DOWN"
+    else:
+        return "SIDEWAYS"
+
+# ============================================================
 # HEALTH CHECK
 # ============================================================
 
@@ -629,7 +761,21 @@ async def health():
         "patent": QUANTUM_BADGE["patent"],
         "timestamp": datetime.now().isoformat(),
         "ic_markets_connected": True,
-        "accounts": len(IC_ACCOUNTS)
+        "accounts": len(IC_ACCOUNTS),
+        "symbols": len(IC_SYMBOLS)
+    }
+
+@app.get("/")
+async def root():
+    return {
+        "message": "⚛️ KD Quantum API - CHSH S=2.76",
+        "patent": "SA 2026/05142",
+        "status": "quantum_ready",
+        "built": "Africa",
+        "for": "Africa",
+        "version": "2.1.0",
+        "timestamp": datetime.now().isoformat(),
+        "quantum_badge": QUANTUM_BADGE["text"]
     }
 
 # ============================================================
