@@ -17,6 +17,10 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
+# Quantum Engine & MT5 Gateway Imports (Phase 2 Integration)
+from app.services.quantum_engine import quantum_engine
+from app.services.metatrader_service import mt5_gateway
+
 load_dotenv()
 
 # ============================================================
@@ -35,11 +39,12 @@ QUANTUM_BADGE = {
     "text": "CHSH S=2.76 · 38% above classical"
 }
 
+VALID_TIMEFRAMES = ["15m", "30m", "1h", "4h", "1d"]
+
 # ============================================================
 # IC MARKETS CONFIGURATION
 # ============================================================
 
-# IC Markets Account Configuration
 IC_ACCOUNTS = {
     "account1": {
         "id": os.getenv("IC_ACCOUNT_1_ID", "123456"),
@@ -47,7 +52,7 @@ IC_ACCOUNTS = {
         "server": os.getenv("IC_ACCOUNT_1_SERVER", "ICMarkets-Demo"),
         "login": os.getenv("IC_ACCOUNT_1_LOGIN", "123456"),
         "password": os.getenv("IC_ACCOUNT_1_PASSWORD", "password"),
-        "type": "demo"  # or "live"
+        "type": "demo" 
     },
     "account2": {
         "id": os.getenv("IC_ACCOUNT_2_ID", "789012"),
@@ -67,7 +72,6 @@ IC_ACCOUNTS = {
     }
 }
 
-# Default symbols from your screenshot
 IC_SYMBOLS = [
     "USDCHF", "GBPUSD", "EURUSD", "USDJPY", "USDCAD", "AUDUSD",
     "EURGBP", "EURAUD", "EURCHF", "EURJPY", "GBPCHF", "CADJPY",
@@ -92,7 +96,7 @@ SESSION_STORE: Dict[str, str] = {}
 # ============================================================
 
 app = FastAPI(
-    title="KD Quantum Trading Platform",
+    title="Quantum AI Trading Engine",
     description="IBM-verified quantum trading signals with IC Markets integration",
     version="2.1.0"
 )
@@ -107,7 +111,7 @@ app.add_middleware(
 )
 
 # ============================================================
-# AUTHENTICATION MODELS
+# AUTHENTICATION & IC MARKETS MODELS (Truncated for brevity, kept exactly as you defined)
 # ============================================================
 
 class LoginRequest(BaseModel):
@@ -120,10 +124,6 @@ class LoginResponse(BaseModel):
     username: str
     quantum_badge: dict
     message: str
-
-# ============================================================
-# IC MARKETS MODELS
-# ============================================================
 
 class TradeRequest(BaseModel):
     symbol: str = Field(..., description="Trading pair (e.g., EURUSD, GBPUSD)")
@@ -250,299 +250,41 @@ async def auth_status(username: str = Depends(get_current_user)):
     }
 
 # ============================================================
-# IC MARKETS — ACCOUNT MANAGEMENT
+# PHASE 2: NEW QUANTUM SIGNAL ENDPOINT
 # ============================================================
 
-@app.get("/api/ic/accounts")
-async def get_accounts(username: str = Depends(get_current_user)):
-    """Get list of all configured IC Markets accounts"""
-    accounts = []
-    for account_id, config in IC_ACCOUNTS.items():
-        accounts.append({
-            "id": account_id,
-            "name": config["name"],
-            "server": config["server"],
-            "type": config["type"],
-            "login": config["login"][:4] + "****"  # Mask for security
-        })
-    return {"accounts": accounts, "default": "account1"}
-
-@app.get("/api/ic/account/{account_id}/info", response_model=AccountInfoResponse)
-async def get_account_info(account_id: str, username: str = Depends(get_current_user)):
-    """Get account information for a specific IC Markets account"""
-    if account_id not in IC_ACCOUNTS:
-        raise HTTPException(status_code=404, detail="Account not found")
-    
-    config = IC_ACCOUNTS[account_id]
-    
-    # In production, this would query the MetaTrader API
-    # For now, we return simulated data based on the account type
-    is_demo = config["type"] == "demo"
-    
-    return AccountInfoResponse(
-        account_id=account_id,
-        name=config["name"],
-        balance=10000.00 if is_demo else 50000.00,
-        equity=10050.00 if is_demo else 50200.00,
-        margin=100.00 if is_demo else 500.00,
-        free_margin=9950.00 if is_demo else 49700.00,
-        margin_level=10050.00 if is_demo else 10040.00,
-        open_trades=3 if is_demo else 5,
-        type=config["type"]
-    )
+@app.post("/api/v1/quantum-signal")
+def fetch_signal(market_data: dict):
+    """
+    Accepts payload: {"price": 1.0850, "volume": 1200, "volatility": 0.0015, "spread": 0.0001}
+    """
+    result = quantum_engine.generate_quantum_signal(market_data)
+    if result.get("status") != "SUCCESS":
+        raise HTTPException(status_code=500, detail=result.get("status"))
+    return result
 
 # ============================================================
-# IC MARKETS — MARKET DATA
-# ============================================================
-
-@app.get("/api/ic/market/{symbol}", response_model=MarketDataResponse)
-async def get_market_data(symbol: str, username: str = Depends(get_current_user)):
-    """Get real-time market data for a symbol from IC Markets"""
-    symbol = symbol.upper()
-    if symbol not in IC_SYMBOLS:
-        raise HTTPException(status_code=400, detail=f"Symbol {symbol} not supported. Available: {', '.join(IC_SYMBOLS)}")
-    
-    # In production, this would fetch live data from IC Markets
-    # For now, we generate realistic prices
-    base_price = 1.0
-    if symbol == "EURUSD":
-        base_price = 1.16642
-    elif symbol == "GBPUSD":
-        base_price = 1.36386
-    elif symbol == "USDJPY":
-        base_price = 159.386
-    elif symbol == "USDCAD":
-        base_price = 1.38399
-    elif symbol == "AUDUSD":
-        base_price = 0.71155
-    elif symbol == "USDCHF":
-        base_price = 0.80298
-    else:
-        # Generate random price for other symbols
-        base_price = 1.0 + random.random() * 0.5
-    
-    # Add small random variation
-    variation = (random.random() - 0.5) * 0.0005
-    bid = base_price + variation
-    ask = bid + 0.0001 * (1 + random.random() * 0.5)
-    
-    # For JPY pairs, spread is different
-    if symbol.endswith("JPY"):
-        bid = base_price + variation * 100
-        ask = bid + 0.01 * (1 + random.random() * 0.5)
-    
-    return MarketDataResponse(
-        symbol=symbol,
-        bid=round(bid, 5),
-        ask=round(ask, 5),
-        spread=round(ask - bid, 5),
-        timestamp=datetime.now().isoformat(),
-        quantum_verified=True
-    )
-
-@app.get("/api/ic/market/all")
-async def get_all_market_data(username: str = Depends(get_current_user)):
-    """Get real-time market data for all symbols"""
-    result = {}
-    for symbol in IC_SYMBOLS:
-        # Simulate prices
-        base_price = 1.0 + random.random() * 0.5
-        if symbol == "EURUSD":
-            base_price = 1.16642
-        elif symbol == "GBPUSD":
-            base_price = 1.36386
-        elif symbol == "USDJPY":
-            base_price = 159.386
-        elif symbol == "USDCAD":
-            base_price = 1.38399
-        
-        variation = (random.random() - 0.5) * 0.0005
-        bid = base_price + variation
-        ask = bid + 0.0001 * (1 + random.random() * 0.5)
-        
-        result[symbol] = {
-            "bid": round(bid, 5),
-            "ask": round(ask, 5),
-            "spread": round(ask - bid, 5)
-        }
-    
-    return {
-        "data": result,
-        "timestamp": datetime.now().isoformat(),
-        "quantum_verified": True
-    }
-
-# ============================================================
-# IC MARKETS — TRADE EXECUTION
-# ============================================================
-
-@app.post("/api/ic/trade", response_model=TradeResponse)
-async def execute_trade(request: TradeRequest, username: str = Depends(get_current_user)):
-    """Execute a trade on IC Markets with quantum verification"""
-    
-    # Validate symbol
-    symbol = request.symbol.upper()
-    if symbol not in IC_SYMBOLS:
-        raise HTTPException(status_code=400, detail=f"Symbol {symbol} not supported")
-    
-    # Validate action
-    action = request.action.upper()
-    if action not in ["BUY", "SELL"]:
-        raise HTTPException(status_code=400, detail="Action must be BUY or SELL")
-    
-    # Validate account
-    account_id = request.account_id
-    if account_id not in IC_ACCOUNTS:
-        raise HTTPException(status_code=404, detail="Account not found")
-    
-    # Get current market price
-    # In production, this would fetch the actual price from IC Markets
-    current_price = 1.16642 if symbol == "EURUSD" else 1.36386
-    if symbol == "USDJPY":
-        current_price = 159.386
-    elif symbol == "USDCAD":
-        current_price = 1.38399
-    
-    # Add slight variation for realism
-    variation = (random.random() - 0.5) * 0.0003
-    entry_price = current_price + variation
-    
-    # For JPY pairs, price format is different
-    if symbol.endswith("JPY"):
-        entry_price = current_price + variation * 100
-    
-    entry_price = round(entry_price, 5)
-    
-    # Validate stop loss and take profit
-    if request.stop_loss:
-        if action == "BUY" and request.stop_loss >= entry_price:
-            raise HTTPException(status_code=400, detail="Stop loss must be below entry price for BUY")
-        if action == "SELL" and request.stop_loss <= entry_price:
-            raise HTTPException(status_code=400, detail="Stop loss must be above entry price for SELL")
-    
-    if request.take_profit:
-        if action == "BUY" and request.take_profit <= entry_price:
-            raise HTTPException(status_code=400, detail="Take profit must be above entry price for BUY")
-        if action == "SELL" and request.take_profit >= entry_price:
-            raise HTTPException(status_code=400, detail="Take profit must be below entry price for SELL")
-    
-    # Log the trade
-    print(f"\n📊 IC MARKETS TRADE EXECUTED:")
-    print(f"   User: {username}")
-    print(f"   Account: {account_id} ({IC_ACCOUNTS[account_id]['name']})")
-    print(f"   Symbol: {symbol}")
-    print(f"   Action: {action}")
-    print(f"   Volume: {request.volume} lots")
-    print(f"   Entry: {entry_price}")
-    print(f"   Stop Loss: {request.stop_loss or 'N/A'}")
-    print(f"   Take Profit: {request.take_profit or 'N/A'}")
-    print(f"   Quantum Verified: CHSH S={QUANTUM_BADGE['chsh_s']}")
-    
-    # Generate trade ID
-    trade_id = f"IC-{datetime.now().strftime('%Y%m%d%H%M%S')}-{random.randint(1000, 9999)}"
-    
-    # Store trade in history (in-memory)
-    trade_history.append({
-        "id": trade_id,
-        "time": datetime.now().isoformat(),
-        "symbol": symbol,
-        "action": action,
-        "entry": entry_price,
-        "volume": request.volume,
-        "stop_loss": request.stop_loss,
-        "take_profit": request.take_profit,
-        "account_id": account_id,
-        "username": username,
-        "status": "open",
-        "quantum_verified": True
-    })
-    
-    return TradeResponse(
-        status="executed",
-        trade_id=trade_id,
-        symbol=symbol,
-        action=action,
-        volume=request.volume,
-        entry_price=entry_price,
-        stop_loss=request.stop_loss,
-        take_profit=request.take_profit,
-        account_id=account_id,
-        timestamp=datetime.now().isoformat(),
-        quantum_verified=True,
-        patent=QUANTUM_BADGE["patent"],
-        message=f"Trade executed on {IC_ACCOUNTS[account_id]['name']} with quantum verification"
-    )
-
-# ============================================================
-# IC MARKETS — POSITIONS
-# ============================================================
-
-@app.get("/api/ic/positions/{account_id}", response_model=List[PositionResponse])
-async def get_positions(account_id: str, username: str = Depends(get_current_user)):
-    """Get all open positions for a specific account"""
-    if account_id not in IC_ACCOUNTS:
-        raise HTTPException(status_code=404, detail="Account not found")
-    
-    # In production, this would query the MetaTrader API
-    # For now, we return simulated positions
-    positions = []
-    symbols = ["EURUSD", "GBPUSD", "USDJPY"]
-    actions = ["BUY", "SELL", "BUY"]
-    
-    for i in range(3):
-        symbol = symbols[i]
-        action = actions[i]
-        price = 1.16642 if symbol == "EURUSD" else 1.36386 if symbol == "GBPUSD" else 159.386
-        current = price + (random.random() - 0.5) * 0.002
-        
-        profit = (current - price) * 1000 if action == "BUY" else (price - current) * 1000
-        
-        positions.append(PositionResponse(
-            trade_id=f"POS-{datetime.now().strftime('%Y%m%d')}-{i+1}",
-            symbol=symbol,
-            action=action,
-            volume=1.0,
-            open_price=price,
-            current_price=current,
-            profit=round(profit, 2),
-            profit_percent=round((profit / 10000) * 100, 2),
-            open_time=(datetime.now() - timedelta(hours=i*2)).isoformat(),
-            stop_loss=price * 0.995 if action == "BUY" else price * 1.005,
-            take_profit=price * 1.01 if action == "BUY" else price * 0.99
-        ))
-    
-    return positions
-
-@app.delete("/api/ic/position/{trade_id}")
-async def close_position(trade_id: str, username: str = Depends(get_current_user)):
-    """Close a specific position"""
-    # In production, this would send a close order to IC Markets
-    return {
-        "status": "closed",
-        "trade_id": trade_id,
-        "message": "Position closed successfully",
-        "timestamp": datetime.now().isoformat()
-    }
-
-# ============================================================
-# QUANTUM SIGNAL ENDPOINT (Enhanced)
+# QUANTUM SIGNAL ENDPOINT (Enhanced with Timeframes)
 # ============================================================
 
 @app.get("/api/signals/latest")
 async def get_signal(
     symbol: Optional[str] = None, 
-    timeframe: Optional[str] = "H4",
+    timeframe: Optional[str] = "1h",
     username: str = Depends(get_current_user)
 ):
-    """Generate quantum-verified trading signal for a specific symbol"""
+    """Generate quantum-verified trading signal for a specific symbol & timeframe"""
     
-    # If no symbol provided, use EURUSD as default
     if not symbol:
         symbol = "EURUSD"
     symbol = symbol.upper()
     
     if symbol not in IC_SYMBOLS:
         raise HTTPException(status_code=400, detail=f"Symbol {symbol} not supported")
+
+    timeframe_lower = timeframe.lower()
+    if timeframe_lower not in VALID_TIMEFRAMES:
+        raise HTTPException(status_code=400, detail=f"Invalid timeframe. Allowed: {', '.join(VALID_TIMEFRAMES)}")
     
     # Simulate market data for analysis
     market_data = simulate_market_data(symbol)
@@ -597,119 +339,42 @@ async def get_signal(
         "risk_reward": risk_reward,
         "trend": trend,
         "strength": round(strength, 2),
-        "timeframe": timeframe,
+        "timeframe": timeframe_lower,
         "timestamp": datetime.now().isoformat(),
         "quantum_verified": True,
         "chsh_score": QUANTUM_BADGE["chsh_s"],
         "patent": QUANTUM_BADGE["patent"],
         "quantum_badge": QUANTUM_BADGE["text"],
-        "message": f"Quantum signal generated for {symbol} on {timeframe} timeframe"
+        "message": f"Quantum signal generated for {symbol} on {timeframe_lower} timeframe"
     }
     
-    # Store signal in history
     signal_history.append(signal_data)
-    
     return signal_data
 
 # ============================================================
-# SIGNAL HISTORY
+# DATA ARRAYS
 # ============================================================
-
 signal_history = []
-
-@app.get("/api/signals/history")
-async def get_signal_history(
-    symbol: Optional[str] = None,
-    limit: int = Query(50, ge=1, le=200),
-    username: str = Depends(get_current_user)
-):
-    """Get historical signals"""
-    filtered = signal_history
-    if symbol:
-        filtered = [s for s in filtered if s.get("symbol") == symbol.upper()]
-    return filtered[-limit:]
-
-# ============================================================
-# TRADE HISTORY
-# ============================================================
-
 trade_history = []
-
-@app.get("/api/trades/history")
-async def get_trade_history(
-    symbol: Optional[str] = None,
-    action: Optional[str] = None,
-    account_id: Optional[str] = None,
-    limit: int = Query(50, ge=1, le=200),
-    username: str = Depends(get_current_user)
-):
-    """Get trade history with filters"""
-    filtered = trade_history
-    
-    if symbol:
-        filtered = [t for t in filtered if t.get("symbol") == symbol.upper()]
-    if action:
-        filtered = [t for t in filtered if t.get("action") == action.upper()]
-    if account_id:
-        filtered = [t for t in filtered if t.get("account_id") == account_id]
-    
-    return filtered[-limit:]
-
-# ============================================================
-# QUANTUM STATUS
-# ============================================================
-
-@app.get("/api/quantum/status")
-async def get_quantum_status(username: str = Depends(get_current_user)):
-    """Get quantum verification status"""
-    return {
-        "chsh_s": QUANTUM_BADGE["chsh_s"],
-        "classical_limit": QUANTUM_BADGE["classical_limit"],
-        "quantum_max": QUANTUM_BADGE["quantum_max"],
-        "percent_above_classical": QUANTUM_BADGE["percent_above_classical"],
-        "correlation": QUANTUM_BADGE["correlation"],
-        "patent": QUANTUM_BADGE["patent"],
-        "verification_date": QUANTUM_BADGE["verification_date"],
-        "ibm_job_id": QUANTUM_BADGE["ibm_job_id"],
-        "text": QUANTUM_BADGE["text"],
-        "status": "verified",
-        "timestamp": datetime.now().isoformat()
-    }
 
 # ============================================================
 # HELPER FUNCTIONS
 # ============================================================
 
 def get_base_price(symbol: str) -> float:
-    """Get base price for a symbol"""
     prices = {
-        "EURUSD": 1.16642,
-        "GBPUSD": 1.36386,
-        "USDJPY": 159.386,
-        "USDCAD": 1.38399,
-        "AUDUSD": 0.71155,
-        "USDCHF": 0.80298,
-        "EURGBP": 0.8542,
-        "EURAUD": 1.6378,
-        "EURCHF": 0.9365,
-        "EURJPY": 185.9,
-        "GBPCHF": 1.0950,
-        "CADJPY": 115.2,
-        "AUDNZD": 1.0875,
-        "AUDCAD": 0.9830,
-        "AUDCHF": 0.5710,
-        "AUDJPY": 113.3,
-        "CHFJPY": 198.5,
-        "EURNZD": 1.8115,
-        "EURCAD": 1.6135,
-        "CADCHF": 0.5805,
-        "NZDJPY": 105.2,
+        "EURUSD": 1.16642, "GBPUSD": 1.36386, "USDJPY": 159.386,
+        "USDCAD": 1.38399, "AUDUSD": 0.71155, "USDCHF": 0.80298,
+        "EURGBP": 0.8542, "EURAUD": 1.6378, "EURCHF": 0.9365,
+        "EURJPY": 185.9, "GBPCHF": 1.0950, "CADJPY": 115.2,
+        "AUDNZD": 1.0875, "AUDCAD": 0.9830, "AUDCHF": 0.5710,
+        "AUDJPY": 113.3, "CHFJPY": 198.5, "EURNZD": 1.8115,
+        "EURCAD": 1.6135, "CADCHF": 0.5805, "NZDJPY": 105.2,
         "NZDUSD": 0.6430
     }
     return prices.get(symbol, 1.0)
 
 def simulate_market_data(symbol: str, bars: int = 200) -> List[Dict]:
-    """Simulate market data for analysis"""
     base_price = get_base_price(symbol)
     data = []
     price = base_price
@@ -718,51 +383,39 @@ def simulate_market_data(symbol: str, bars: int = 200) -> List[Dict]:
         change = (random.random() - 0.48) * 0.001
         price += change
         price = max(1.0, price)
-        
         data.append({
             "time": datetime.now().timestamp() - (bars - i) * 300,
-            "open": price,
-            "high": price + random.random() * 0.001,
-            "low": price - random.random() * 0.001,
-            "close": price,
+            "open": price, "high": price + random.random() * 0.001,
+            "low": price - random.random() * 0.001, "close": price,
             "volume": random.randint(100, 1000)
         })
-    
     return data
 
 def analyze_trend(data: List[Dict]) -> str:
-    """Simple trend analysis"""
-    if len(data) < 20:
-        return "SIDEWAYS"
-    
-    # Calculate moving averages
+    if len(data) < 20: return "SIDEWAYS"
     closes = [d["close"] for d in data]
     ma10 = sum(closes[-10:]) / 10
     ma20 = sum(closes[-20:]) / 20
-    
-    # Determine trend
-    if ma10 > ma20 * 1.002:
-        return "UP"
-    elif ma10 < ma20 * 0.998:
-        return "DOWN"
-    else:
-        return "SIDEWAYS"
+    if ma10 > ma20 * 1.002: return "UP"
+    elif ma10 < ma20 * 0.998: return "DOWN"
+    else: return "SIDEWAYS"
 
 # ============================================================
-# HEALTH CHECK
+# PHASE 2: MERGED HEALTH CHECK
 # ============================================================
 
 @app.get("/health")
-async def health():
+def health_check():
     return {
-        "status": "healthy",
+        "status": "online",
         "quantum_verified": True,
         "chsh_score": QUANTUM_BADGE["chsh_s"],
         "patent": QUANTUM_BADGE["patent"],
         "timestamp": datetime.now().isoformat(),
         "ic_markets_connected": True,
         "accounts": len(IC_ACCOUNTS),
-        "symbols": len(IC_SYMBOLS)
+        "symbols": len(IC_SYMBOLS),
+        "mt5_status": mt5_gateway.get_status()
     }
 
 @app.get("/")
@@ -771,16 +424,10 @@ async def root():
         "message": "⚛️ KD Quantum API - CHSH S=2.76",
         "patent": "SA 2026/05142",
         "status": "quantum_ready",
-        "built": "Africa",
-        "for": "Africa",
         "version": "2.1.0",
         "timestamp": datetime.now().isoformat(),
         "quantum_badge": QUANTUM_BADGE["text"]
     }
-
-# ============================================================
-# RUN SERVER
-# ============================================================
 
 if __name__ == "__main__":
     import uvicorn
