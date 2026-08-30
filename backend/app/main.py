@@ -21,6 +21,9 @@ from dotenv import load_dotenv
 from app.services.quantum_engine import quantum_engine
 from app.services.metatrader_service import mt5_gateway
 
+# WebSocket Router Import (Phase 3 Integration)
+from app.routers import websocket as ws_router
+
 load_dotenv()
 
 # ============================================================
@@ -101,6 +104,9 @@ app = FastAPI(
     version="2.1.0"
 )
 
+# Phase 3: WebSocket Router Registration
+app.include_router(ws_router.router)
+
 # CORS
 app.add_middleware(
     CORSMiddleware,
@@ -111,7 +117,7 @@ app.add_middleware(
 )
 
 # ============================================================
-# AUTHENTICATION & IC MARKETS MODELS (Truncated for brevity, kept exactly as you defined)
+# AUTHENTICATION & IC MARKETS MODELS
 # ============================================================
 
 class LoginRequest(BaseModel):
