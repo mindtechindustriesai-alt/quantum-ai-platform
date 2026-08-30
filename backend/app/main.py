@@ -21,8 +21,10 @@ from dotenv import load_dotenv
 from app.services.quantum_engine import quantum_engine
 from app.services.metatrader_service import mt5_gateway
 
-# WebSocket Router Import (Phase 3 Integration)
+# Router Imports (Phases 3, 4, and 5)
 from app.routers import websocket as ws_router
+from app.routers import risk as risk_router
+from app.routers import execution as execution_router
 
 load_dotenv()
 
@@ -106,6 +108,12 @@ app = FastAPI(
 
 # Phase 3: WebSocket Router Registration
 app.include_router(ws_router.router)
+
+# Phase 4: Risk Management Router Registration
+app.include_router(risk_router.router)
+
+# Phase 5: Trade Execution Router Registration
+app.include_router(execution_router.router)
 
 # CORS
 app.add_middleware(
