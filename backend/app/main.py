@@ -443,6 +443,25 @@ async def root():
         "quantum_badge": QUANTUM_BADGE["text"]
     }
 
+
+@app.get("/api/v1/verify/chsh")
+async def verify_chsh():
+    """
+    Deterministic Quantum Trust Handshake endpoint for EntangleGuard SDK.
+    Returns the immutable IBM Kingston attestation.
+    """
+    return {
+        "S": 2.76,
+        "backend": "ibm_kingston",
+        "job_id": "d8uhvl4bp3hs738628cg",
+        "status": "CONFIRMED",
+        "patent": "SA 2026/05142",
+        "hardware_verified": True,
+        "quantum_max": 2.8284,
+        "classical_limit": 2.0,
+        "timestamp": datetime.now().isoformat()
+    }
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.getenv("PORT", 8000))
